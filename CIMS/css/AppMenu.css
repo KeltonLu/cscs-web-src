@@ -1,0 +1,66 @@
+﻿.MenuItem
+{
+	/*border-collapse: collapse;*/
+	
+}
+
+.m0l0iout {
+	font-family: sans-serif, Tahoma, Verdana, Geneva, Arial, Helvetica;
+	font-size: 12px;
+	text-decoration: none;
+	margin: 4px 0 0 8px;
+	color: #FFFFFF;
+}
+.m0l0iover {
+	font-family: sans-serif, Tahoma, Verdana, Geneva, Arial, Helvetica;
+	font-size: 12px;
+	text-decoration: underline;
+	margin: 5px 0 0 8px;
+	color: #000000;
+}
+
+/* level 0 outer */
+.m0l0oout {
+	text-decoration : none;
+	background-image: url(images/arrow_top.gif);
+	border: 1px solid #B8C8BB;
+	background-color: #8E9574;
+}
+.m0l0oover {
+	text-decoration : none;
+	background-image: url(images/arrow_up.gif);
+	background-color: #B8C8BB;
+	border: 1px solid #8E9574;
+}
+
+/* level 1 inner */
+.m0l1iout {
+	font-family: sans-serif, Tahoma, Verdana, Geneva, Arial, Helvetica;
+	font-size: 12px;
+	margin: 4px 0 0 8px;
+	color: #000000;
+	background-color:#F5F8FF;
+	
+}
+.m0l1iover {
+	font-family: sans-serif, Tahoma, Verdana, Geneva, Arial, Helvetica;
+	font-size: 12px;
+	margin: 5px 0 0 8px;
+	color: #000000;
+}
+
+/* level 1 outer */
+.m0l1oout {
+	text-decoration : none;
+	border: 1px solid #BCEBDD;
+	padding: 0;
+	background-color:#F5F8FF;
+}
+.m0l1oover {
+	text-decoration : none;
+	background-color: #FAFFFD;
+	background-image: url(images/arrow_top.gif);
+	background-repeat: no-repeat;
+	border: 1px solid #8E9574;
+	padding: 0;
+}

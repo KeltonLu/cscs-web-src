@@ -1,0 +1,328 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <DataSources>
+    <DataSource Name="CIMS">
+      <DataSourceReference>CIMS</DataSourceReference>
+      <rd:DataSourceID>8d20248c-ac8f-400d-af96-c921dd1ca13b</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <BottomMargin>2.5cm</BottomMargin>
+  <RightMargin>2.5cm</RightMargin>
+  <PageWidth>21cm</PageWidth>
+  <ReportParameters>
+    <ReportParameter Name="Date_Time">
+      <DataType>DateTime</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>Date_Time</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Card_Group_RID">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>Card_Group_RID</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Perso_Factory">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>Perso_Factory</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RCT">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>RCT</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <rd:DrawGrid>true</rd:DrawGrid>
+  <InteractiveWidth>8.5in</InteractiveWidth>
+  <rd:GridSpacing>0.25cm</rd:GridSpacing>
+  <rd:SnapToGrid>true</rd:SnapToGrid>
+  <Body>
+    <ColumnSpacing>1cm</ColumnSpacing>
+    <ReportItems>
+      <Textbox Name="textbox1">
+        <Top>2.75cm</Top>
+        <ZIndex>3</ZIndex>
+        <Style>
+          <TextAlign>Center</TextAlign>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingBottom>2pt</PaddingBottom>
+          <FontFamily>新細明體</FontFamily>
+          <Format>D</Format>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <Height>0.63492cm</Height>
+        <Value>=FormatDateTime(Parameters!Date_Time.Value)</Value>
+      </Textbox>
+      <Textbox Name="textbox4">
+        <Top>1.5cm</Top>
+        <rd:DefaultName>textbox4</rd:DefaultName>
+        <ZIndex>2</ZIndex>
+        <Style>
+          <TextAlign>Center</TextAlign>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingBottom>2pt</PaddingBottom>
+          <FontFamily>新細明體</FontFamily>
+          <FontSize>16pt</FontSize>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <Height>0.88492cm</Height>
+        <Value>=IIf(Parameters!Perso_Factory.Value="","總",First(Fields!factory_shortname_cn.Value, "DataSet2"))+"製卡卡數明細表"+"-"+First(Fields!group_name.Value, "DataSet1")</Value>
+      </Textbox>
+      <Textbox Name="textbox7">
+        <Top>0.25cm</Top>
+        <ZIndex>1</ZIndex>
+        <Style>
+          <TextAlign>Center</TextAlign>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingBottom>2pt</PaddingBottom>
+          <FontFamily>新細明體</FontFamily>
+          <FontWeight>700</FontWeight>
+          <FontSize>20pt</FontSize>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <Height>0.91429cm</Height>
+        <Value>中國信託商業銀行</Value>
+      </Textbox>
+      <Matrix Name="matrix1">
+        <MatrixColumns>
+          <MatrixColumn>
+            <Width>2cm</Width>
+          </MatrixColumn>
+        </MatrixColumns>
+        <RowGroupings>
+          <RowGrouping>
+            <Width>2.55291cm</Width>
+            <DynamicRows>
+              <ReportItems>
+                <Textbox Name="card_type">
+                  <rd:DefaultName>card_type</rd:DefaultName>
+                  <ZIndex>1</ZIndex>
+                  <Style>
+                    <BorderStyle>
+                      <Default>Solid</Default>
+                    </BorderStyle>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingBottom>2pt</PaddingBottom>
+                    <FontFamily>新細明體</FontFamily>
+                    <BackgroundColor>#b8c8bb</BackgroundColor>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>2pt</PaddingTop>
+                  </Style>
+                  <CanGrow>true</CanGrow>
+                  <Value>=Fields!card_type.Value</Value>
+                </Textbox>
+              </ReportItems>
+              <Sorting>
+                <SortBy>
+                  <SortExpression>=Fields!card_type.Value</SortExpression>
+                  <Direction>Ascending</Direction>
+                </SortBy>
+              </Sorting>
+              <Grouping Name="matrix1_card_type">
+                <GroupExpressions>
+                  <GroupExpression>=Fields!card_type.Value</GroupExpression>
+                </GroupExpressions>
+              </Grouping>
+            </DynamicRows>
+          </RowGrouping>
+        </RowGroupings>
+        <ColumnGroupings>
+          <ColumnGrouping>
+            <DynamicColumns>
+              <ReportItems>
+                <Textbox Name="i">
+                  <rd:DefaultName>i</rd:DefaultName>
+                  <ZIndex>2</ZIndex>
+                  <Style>
+                    <BorderStyle>
+                      <Default>Solid</Default>
+                    </BorderStyle>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingBottom>2pt</PaddingBottom>
+                    <FontFamily>新細明體</FontFamily>
+                    <FontWeight>Bolder</FontWeight>
+                    <FontSize>11pt</FontSize>
+                    <BackgroundColor>#b9bdaa</BackgroundColor>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>2pt</PaddingTop>
+                  </Style>
+                  <CanGrow>true</CanGrow>
+                  <Value>=Fields!i.Value</Value>
+                </Textbox>
+              </ReportItems>
+              <Sorting>
+                <SortBy>
+                  <SortExpression>=Fields!id.Value</SortExpression>
+                  <Direction>Ascending</Direction>
+                </SortBy>
+              </Sorting>
+              <Grouping Name="matrix1_i">
+                <GroupExpressions>
+                  <GroupExpression>=Fields!i.Value</GroupExpression>
+                </GroupExpressions>
+              </Grouping>
+            </DynamicColumns>
+            <Height>0.63228cm</Height>
+          </ColumnGrouping>
+        </ColumnGroupings>
+        <DataSetName>CIMS</DataSetName>
+        <Top>3.75cm</Top>
+        <Width>4.55291cm</Width>
+        <Corner>
+          <ReportItems>
+            <Rectangle Name="rectangle1">
+              <ReportItems>
+                <Textbox Name="textbox3">
+                  <rd:DefaultName>textbox3</rd:DefaultName>
+                  <Width>2.53968cm</Width>
+                  <Style>
+                    <TextAlign>Center</TextAlign>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingBottom>2pt</PaddingBottom>
+                    <FontFamily>新細明體</FontFamily>
+                    <FontWeight>Bolder</FontWeight>
+                    <FontSize>11pt</FontSize>
+                    <BackgroundColor>#b9bdaa</BackgroundColor>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>3pt</PaddingTop>
+                  </Style>
+                  <CanGrow>true</CanGrow>
+                  <Value>替換版面</Value>
+                </Textbox>
+              </ReportItems>
+              <ZIndex>3</ZIndex>
+              <Style>
+                <BorderStyle>
+                  <Default>Solid</Default>
+                </BorderStyle>
+                <FontFamily>新細明體</FontFamily>
+                <BackgroundColor>#b9bdaa</BackgroundColor>
+              </Style>
+            </Rectangle>
+          </ReportItems>
+        </Corner>
+        <Height>1.38228cm</Height>
+        <MatrixRows>
+          <MatrixRow>
+            <Height>0.75cm</Height>
+            <MatrixCells>
+              <MatrixCell>
+                <ReportItems>
+                  <Textbox Name="textbox2">
+                    <rd:DefaultName>textbox2</rd:DefaultName>
+                    <Style>
+                      <BorderStyle>
+                        <Default>Solid</Default>
+                      </BorderStyle>
+                      <PaddingLeft>2pt</PaddingLeft>
+                      <PaddingBottom>2pt</PaddingBottom>
+                      <FontFamily>新細明體</FontFamily>
+                      <Format>N0</Format>
+                      <BackgroundColor>#b8c8bb</BackgroundColor>
+                      <PaddingRight>2pt</PaddingRight>
+                      <PaddingTop>2pt</PaddingTop>
+                    </Style>
+                    <CanGrow>true</CanGrow>
+                    <Value>=Sum(Fields!sumn.Value)</Value>
+                  </Textbox>
+                </ReportItems>
+              </MatrixCell>
+            </MatrixCells>
+          </MatrixRow>
+        </MatrixRows>
+      </Matrix>
+    </ReportItems>
+    <Height>6.25cm</Height>
+  </Body>
+  <rd:ReportID>ffb4fca7-f789-4fc8-965f-f90ef964c199</rd:ReportID>
+  <LeftMargin>2.5cm</LeftMargin>
+  <DataSets>
+    <DataSet Name="CIMS">
+      <Query>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+        <CommandType>StoredProcedure</CommandType>
+        <CommandText>proc_report007_rows2</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@Date_Time">
+            <Value>=Parameters!Date_Time.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@Card_Group_RID">
+            <Value>=Parameters!Card_Group_RID.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@Perso_Factory">
+            <Value>=Parameters!Perso_Factory.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@RCT">
+            <Value>=Parameters!RCT.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <DataSourceName>CIMS</DataSourceName>
+      </Query>
+      <Fields>
+        <Field Name="card_type">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>card_type</DataField>
+        </Field>
+        <Field Name="id">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>id</DataField>
+        </Field>
+        <Field Name="i">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>i</DataField>
+        </Field>
+        <Field Name="sumn">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>sumn</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet1">
+      <Query>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+        <CommandText>select group_name from card_group where rid=@Card_Group_RID</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@Card_Group_RID">
+            <Value>=Parameters!Card_Group_RID.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <DataSourceName>CIMS</DataSourceName>
+      </Query>
+      <Fields>
+        <Field Name="group_name">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>group_name</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet2">
+      <Query>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+        <CommandText>select factory_shortname_cn from factory where rid = @Perso_Factory</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@Perso_Factory">
+            <Value>=Parameters!Perso_Factory.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <DataSourceName>CIMS</DataSourceName>
+      </Query>
+      <Fields>
+        <Field Name="factory_shortname_cn">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>factory_shortname_cn</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <Width>13cm</Width>
+  <InteractiveHeight>11in</InteractiveHeight>
+  <Language>zh-TW</Language>
+  <TopMargin>2.5cm</TopMargin>
+  <PageHeight>29.7cm</PageHeight>
+</Report>

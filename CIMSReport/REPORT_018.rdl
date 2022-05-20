@@ -1,0 +1,345 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <DataSources>
+    <DataSource Name="CIMS">
+      <DataSourceReference>CIMS</DataSourceReference>
+      <rd:DataSourceID>411aa715-21b5-48fd-806f-9c9cb7971825</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <BottomMargin>2.5cm</BottomMargin>
+  <RightMargin>2.5cm</RightMargin>
+  <PageWidth>21cm</PageWidth>
+  <ReportParameters>
+    <ReportParameter Name="Date">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>Date</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CardList">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>CardList</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RCT">
+      <DataType>String</DataType>
+      <Prompt>RCT</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="FactoryName">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>FactoryName</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <rd:DrawGrid>true</rd:DrawGrid>
+  <InteractiveWidth>8.5in</InteractiveWidth>
+  <rd:GridSpacing>0.25cm</rd:GridSpacing>
+  <rd:SnapToGrid>true</rd:SnapToGrid>
+  <Body>
+    <ColumnSpacing>1cm</ColumnSpacing>
+    <ReportItems>
+      <Textbox Name="textbox9">
+        <Top>0.5cm</Top>
+        <ZIndex>3</ZIndex>
+        <Width>5cm</Width>
+        <Style>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingBottom>2pt</PaddingBottom>
+          <FontFamily>新細明體</FontFamily>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <Height>0.5cm</Height>
+        <Value>="Perso廠：" + Parameters!FactoryName.Value</Value>
+      </Textbox>
+      <Textbox Name="textbox8">
+        <Top>2cm</Top>
+        <ZIndex>2</ZIndex>
+        <Style>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingBottom>2pt</PaddingBottom>
+          <FontFamily>新細明體</FontFamily>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <Height>0.5cm</Height>
+        <Value>="卡種：" + Parameters!CardList.Value</Value>
+      </Textbox>
+      <Textbox Name="textbox7">
+        <Top>1.25cm</Top>
+        <rd:DefaultName>textbox7</rd:DefaultName>
+        <ZIndex>1</ZIndex>
+        <Width>5cm</Width>
+        <Style>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingBottom>2pt</PaddingBottom>
+          <FontFamily>新細明體</FontFamily>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <Height>0.5cm</Height>
+        <Value>="日期：" + Parameters!Date.Value</Value>
+      </Textbox>
+      <Matrix Name="matrix1">
+        <MatrixColumns>
+          <MatrixColumn>
+            <Width>1.5cm</Width>
+          </MatrixColumn>
+        </MatrixColumns>
+        <RowGroupings>
+          <RowGrouping>
+            <Width>2cm</Width>
+            <DynamicRows>
+              <ReportItems>
+                <Textbox Name="textbox6">
+                  <rd:DefaultName>textbox6</rd:DefaultName>
+                  <ZIndex>2</ZIndex>
+                  <Style>
+                    <BorderStyle>
+                      <Default>Solid</Default>
+                    </BorderStyle>
+                    <TextAlign>Center</TextAlign>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingBottom>2pt</PaddingBottom>
+                    <FontFamily>新細明體</FontFamily>
+                    <VerticalAlign>Middle</VerticalAlign>
+                    <BackgroundColor>#b9bdaa</BackgroundColor>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>2pt</PaddingTop>
+                  </Style>
+                  <CanGrow>true</CanGrow>
+                  <Value>=IIf(Fields!month.Value="13","合計",CLng(Fields!month.Value).ToString() + "月")</Value>
+                </Textbox>
+              </ReportItems>
+              <Grouping Name="matrix1_RowGroup3">
+                <GroupExpressions>
+                  <GroupExpression>=Fields!month.Value</GroupExpression>
+                </GroupExpressions>
+              </Grouping>
+            </DynamicRows>
+          </RowGrouping>
+          <RowGrouping>
+            <Width>2cm</Width>
+            <DynamicRows>
+              <ReportItems>
+                <Textbox Name="cardname">
+                  <rd:DefaultName>cardname</rd:DefaultName>
+                  <ZIndex>1</ZIndex>
+                  <Style>
+                    <BorderStyle>
+                      <Default>Solid</Default>
+                    </BorderStyle>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingBottom>2pt</PaddingBottom>
+                    <FontFamily>新細明體</FontFamily>
+                    <BackgroundColor>#b9bdaa</BackgroundColor>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>2pt</PaddingTop>
+                  </Style>
+                  <CanGrow>true</CanGrow>
+                  <Value>=Right(Fields!cardname.Value,Len(Fields!cardname.Value)-1)</Value>
+                </Textbox>
+              </ReportItems>
+              <Sorting>
+                <SortBy>
+                  <SortExpression>=Fields!cardname.Value</SortExpression>
+                  <Direction>Ascending</Direction>
+                </SortBy>
+              </Sorting>
+              <Grouping Name="matrix1_cardname">
+                <Parent>=Fields!month.Value</Parent>
+                <GroupExpressions>
+                  <GroupExpression>=Fields!cardname.Value</GroupExpression>
+                </GroupExpressions>
+              </Grouping>
+            </DynamicRows>
+          </RowGrouping>
+        </RowGroupings>
+        <ColumnGroupings>
+          <ColumnGrouping>
+            <DynamicColumns>
+              <ReportItems>
+                <Textbox Name="day">
+                  <rd:DefaultName>day</rd:DefaultName>
+                  <ZIndex>4</ZIndex>
+                  <Style>
+                    <BorderStyle>
+                      <Default>Solid</Default>
+                    </BorderStyle>
+                    <TextAlign>Center</TextAlign>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingBottom>2pt</PaddingBottom>
+                    <FontFamily>新細明體</FontFamily>
+                    <BackgroundColor>#b9bdaa</BackgroundColor>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>2pt</PaddingTop>
+                  </Style>
+                  <CanGrow>true</CanGrow>
+                  <Value>=Day(Fields!day.Value)</Value>
+                </Textbox>
+              </ReportItems>
+              <Subtotal>
+                <ReportItems>
+                  <Textbox Name="textbox5">
+                    <rd:DefaultName>textbox5</rd:DefaultName>
+                    <ZIndex>3</ZIndex>
+                    <Style>
+                      <BorderStyle>
+                        <Default>Solid</Default>
+                      </BorderStyle>
+                      <PaddingLeft>2pt</PaddingLeft>
+                      <PaddingBottom>2pt</PaddingBottom>
+                      <FontFamily>新細明體</FontFamily>
+                      <BackgroundColor>#b9bdaa</BackgroundColor>
+                      <PaddingRight>2pt</PaddingRight>
+                      <PaddingTop>2pt</PaddingTop>
+                    </Style>
+                    <CanGrow>true</CanGrow>
+                    <Value>總計</Value>
+                  </Textbox>
+                </ReportItems>
+              </Subtotal>
+              <Sorting>
+                <SortBy>
+                  <SortExpression>=Fields!day.Value</SortExpression>
+                  <Direction>Ascending</Direction>
+                </SortBy>
+              </Sorting>
+              <Grouping Name="matrix1_day">
+                <GroupExpressions>
+                  <GroupExpression>=Day(Fields!day.Value)</GroupExpression>
+                </GroupExpressions>
+              </Grouping>
+            </DynamicColumns>
+            <Height>0.6cm</Height>
+          </ColumnGrouping>
+        </ColumnGroupings>
+        <DataSetName>Report018</DataSetName>
+        <Top>2.5cm</Top>
+        <Width>7cm</Width>
+        <Corner>
+          <ReportItems>
+            <Rectangle Name="rectangle1">
+              <ReportItems>
+                <Line Name="line1">
+                  <Top>0.6cm</Top>
+                  <ZIndex>1</ZIndex>
+                  <Style>
+                    <BorderStyle>
+                      <Default>Solid</Default>
+                    </BorderStyle>
+                    <FontFamily>新細明體</FontFamily>
+                  </Style>
+                </Line>
+                <Textbox Name="textbox1">
+                  <rd:DefaultName>textbox1</rd:DefaultName>
+                  <Style>
+                    <TextAlign>Center</TextAlign>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingBottom>2pt</PaddingBottom>
+                    <FontFamily>新細明體</FontFamily>
+                    <BackgroundColor>#b9bdaa</BackgroundColor>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>2pt</PaddingTop>
+                  </Style>
+                  <CanGrow>true</CanGrow>
+                  <Height>0.53333cm</Height>
+                  <Value>日期</Value>
+                </Textbox>
+              </ReportItems>
+              <ZIndex>5</ZIndex>
+              <Style>
+                <BorderStyle>
+                  <Default>Solid</Default>
+                </BorderStyle>
+                <FontFamily>新細明體</FontFamily>
+                <BackgroundColor>#b9bdaa</BackgroundColor>
+              </Style>
+            </Rectangle>
+          </ReportItems>
+        </Corner>
+        <MatrixRows>
+          <MatrixRow>
+            <Height>0.6cm</Height>
+            <MatrixCells>
+              <MatrixCell>
+                <ReportItems>
+                  <Textbox Name="textbox2">
+                    <rd:DefaultName>textbox2</rd:DefaultName>
+                    <Style>
+                      <BorderStyle>
+                        <Default>Solid</Default>
+                      </BorderStyle>
+                      <PaddingLeft>2pt</PaddingLeft>
+                      <PaddingBottom>2pt</PaddingBottom>
+                      <FontFamily>新細明體</FontFamily>
+                      <Format>N0</Format>
+                      <PaddingRight>2pt</PaddingRight>
+                      <PaddingTop>2pt</PaddingTop>
+                    </Style>
+                    <CanGrow>true</CanGrow>
+                    <Value>=CInt(iif(IsNumeric(Sum(Fields!number.Value)),Sum(Fields!number.Value),0))</Value>
+                  </Textbox>
+                </ReportItems>
+              </MatrixCell>
+            </MatrixCells>
+          </MatrixRow>
+        </MatrixRows>
+      </Matrix>
+    </ReportItems>
+    <Height>3.7cm</Height>
+  </Body>
+  <rd:ReportID>00605c29-bfb6-4d2a-8673-19a65b2347c4</rd:ReportID>
+  <LeftMargin>2.5cm</LeftMargin>
+  <DataSets>
+    <DataSet Name="Report018">
+      <Query>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+        <CommandText>select a.month,a.cardname,a.cardid,a.day,
+case wd.Is_workDay when 'N' then 0 else a.number end as number,a.rct from dbo.RPT_report018 a
+left join WORK_DATE wd on a.day=Convert(varchar(20),wd.date_time,111)
+where a.RCT=@RCT
+ order by convert(int,a.month),a.cardname,a.day</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@RCT">
+            <Value>=Parameters!RCT.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <DataSourceName>CIMS</DataSourceName>
+      </Query>
+      <Fields>
+        <Field Name="month">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>month</DataField>
+        </Field>
+        <Field Name="cardname">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>cardname</DataField>
+        </Field>
+        <Field Name="cardid">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>cardid</DataField>
+        </Field>
+        <Field Name="day">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>day</DataField>
+        </Field>
+        <Field Name="number">
+          <rd:TypeName>System.Int64</rd:TypeName>
+          <DataField>number</DataField>
+        </Field>
+        <Field Name="RCT">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>rct</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <Width>45cm</Width>
+  <InteractiveHeight>11in</InteractiveHeight>
+  <Language>zh-TW</Language>
+  <TopMargin>2.5cm</TopMargin>
+  <PageHeight>29.7cm</PageHeight>
+</Report>

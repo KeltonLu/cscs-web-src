@@ -1,0 +1,106 @@
+﻿H1
+{
+	font-family:Arial, 細明體;
+	color:Red; 
+	font-size:12pt; 
+	margin-bottom:0px;
+}
+
+Body 
+{
+	font-family:Arial, 細明體;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+}
+
+.FirstLastTd
+{
+	background-color:#8E9574; 
+	width:15pt;
+}
+
+.BlankTd
+{
+	background-color:#8E9574;
+}
+
+.CommonLabel
+{
+	font-family:Arial, 細明體;
+	font-size:10pt; 
+	color:#000000;
+}
+
+.CommonCheckBox
+{
+	font-family:Arial, 細明體;
+	font-size:10pt; 
+	color:#000000;
+}
+
+.HidenDiv
+{
+	display:none;
+	border:0;
+}
+
+.RadioList
+{
+	font-family:Arial, 細明體;
+	font-size:10pt; 
+	color:#000000; 
+	margin-left:0px
+}
+
+.ImgButton
+{
+	height:20px;
+}
+
+.CommonArea
+{
+	background-color:#F0EBDF; 
+	border:0
+}
+
+.ListTable
+{
+	border-collapse:collapse;
+	border-color:#8E9574;
+}
+
+.ListHeader
+{
+	color: Black;
+	font-weight:bold;
+	font-family:Arial, 細明體;
+	font-size:11pt;	
+	text-align:center;
+	height: 30;
+	background-color: #B9BDAA;
+	border-color:#8E9574;
+}
+
+.ListItem
+{
+	font-family:Arial, 細明體;
+	font-size:10pt;	
+	height: 25;
+	color: Black;
+	text-align:center;
+	background-color: #E4E4E4;
+	border-color:#8E9574;
+}
+
+.ListItemAlt
+{
+	font-family:Arial, 細明體;
+	font-size:10pt;	
+	height: 25;
+	color: Black;
+	text-align:center;
+	background-color: #B8C8BB;
+	border-color:#8E9574;
+}

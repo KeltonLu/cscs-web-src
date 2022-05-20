@@ -1,0 +1,478 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <DataSources>
+    <DataSource Name="CIMS">
+      <rd:DataSourceID>012fa84e-3935-4813-a3a3-86eef27dbd4d</rd:DataSourceID>
+      <DataSourceReference>CIMS</DataSourceReference>
+    </DataSource>
+  </DataSources>
+  <InteractiveHeight>11in</InteractiveHeight>
+  <ReportParameters>
+    <ReportParameter Name="diff">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>diff</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="perso_facotry">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>perso_facotry</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="material_type">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>material_type</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="materialrid">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>materialrid</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="TimeNow">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>TimeNow</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RCT">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>RCT</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <rd:DrawGrid>true</rd:DrawGrid>
+  <InteractiveWidth>8.5in</InteractiveWidth>
+  <rd:GridSpacing>0.25cm</rd:GridSpacing>
+  <rd:SnapToGrid>true</rd:SnapToGrid>
+  <RightMargin>2.5cm</RightMargin>
+  <LeftMargin>2.5cm</LeftMargin>
+  <BottomMargin>2.5cm</BottomMargin>
+  <rd:ReportID>563090bf-57e3-401f-bf5d-b2cc8a45082a</rd:ReportID>
+  <PageWidth>21cm</PageWidth>
+  <DataSets>
+    <DataSet Name="DataSet1">
+      <Fields>
+        <Field Name="xtype">
+          <DataField>xtype</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="perso_rid">
+          <DataField>perso_rid</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="material_rid">
+          <DataField>material_rid</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="material_name">
+          <DataField>material_name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="serial_number">
+          <DataField>serial_number</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="xxtype">
+          <DataField>xxtype</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="datatime">
+          <DataField>datatime</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="number">
+          <DataField>number</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Factory_ShortName_CN">
+          <DataField>Factory_ShortName_CN</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>CIMS</DataSourceName>
+        <CommandType>StoredProcedure</CommandType>
+        <CommandText>proc_report032_2</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@TimeNow">
+            <Value>=Parameters!TimeNow.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@diff">
+            <Value>=Parameters!diff.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@perso_facotry">
+            <Value>=Parameters!perso_facotry.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@material_type">
+            <Value>=Parameters!material_type.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@materialrid">
+            <Value>=Parameters!materialrid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@RCT">
+            <Value>=Parameters!RCT.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+    </DataSet>
+  </DataSets>
+  <Width>16.75cm</Width>
+  <Body>
+    <ColumnSpacing>1cm</ColumnSpacing>
+    <ReportItems>
+      <List Name="list1">
+        <DataSetName>DataSet1</DataSetName>
+        <ReportItems>
+          <Matrix Name="matrix1">
+            <MatrixColumns>
+              <MatrixColumn>
+                <Width>2.67952cm</Width>
+              </MatrixColumn>
+            </MatrixColumns>
+            <ZIndex>1</ZIndex>
+            <DataSetName>CIMS</DataSetName>
+            <RowGroupings>
+              <RowGrouping>
+                <Width>2.85239cm</Width>
+                <DynamicRows>
+                  <Grouping Name="matrix1_serial_number">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!serial_number.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Grouping>
+                  <Sorting>
+                    <SortBy>
+                      <SortExpression>=Fields!serial_number.Value</SortExpression>
+                      <Direction>Ascending</Direction>
+                    </SortBy>
+                  </Sorting>
+                  <ReportItems>
+                    <Textbox Name="serial_number">
+                      <rd:DefaultName>serial_number</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(CDbl(RowNumber("matrix1").ToString()) Mod 2 = 0,"#B8C8BB","#E4E4E4")</BackgroundColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontFamily>新細明體</FontFamily>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>4</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!serial_number.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </DynamicRows>
+              </RowGrouping>
+              <RowGrouping>
+                <Width>2.85239cm</Width>
+                <DynamicRows>
+                  <Grouping Name="matrix1_material_name">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!material_name.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Grouping>
+                  <Sorting>
+                    <SortBy>
+                      <SortExpression>=Fields!material_name.Value</SortExpression>
+                      <Direction>Ascending</Direction>
+                    </SortBy>
+                  </Sorting>
+                  <ReportItems>
+                    <Textbox Name="material_name">
+                      <rd:DefaultName>material_name</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(CDbl(RowNumber("matrix1").ToString()) Mod 2 = 0,"#B8C8BB","#E4E4E4")</BackgroundColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontFamily>新細明體</FontFamily>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>3</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!material_name.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </DynamicRows>
+              </RowGrouping>
+              <RowGrouping>
+                <Width>2.85239cm</Width>
+                <DynamicRows>
+                  <Grouping Name="matrix1_perso_rid">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!perso_rid.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Grouping>
+                  <Sorting>
+                    <SortBy>
+                      <SortExpression>=Fields!perso_rid.Value</SortExpression>
+                      <Direction>Ascending</Direction>
+                    </SortBy>
+                  </Sorting>
+                  <ReportItems>
+                    <Textbox Name="perso_rid">
+                      <rd:DefaultName>perso_rid</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(CDbl(RowNumber("matrix1").ToString()) Mod 2 = 0,"#B8C8BB","#E4E4E4")</BackgroundColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontFamily>新細明體</FontFamily>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>2</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Factory_ShortName_CN.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </DynamicRows>
+              </RowGrouping>
+              <RowGrouping>
+                <Width>2.67952cm</Width>
+                <DynamicRows>
+                  <Grouping Name="matrix1_xtype">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!xtype.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Grouping>
+                  <Sorting>
+                    <SortBy>
+                      <SortExpression>=Fields!xtype.Value</SortExpression>
+                      <Direction>Ascending</Direction>
+                    </SortBy>
+                  </Sorting>
+                  <ReportItems>
+                    <Textbox Name="xtype">
+                      <rd:DefaultName>xtype</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(CDbl(RowNumber("matrix1").ToString()) Mod 2 = 0,"#B8C8BB","#E4E4E4")</BackgroundColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontFamily>新細明體</FontFamily>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>1</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!xtype.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </DynamicRows>
+              </RowGrouping>
+            </RowGroupings>
+            <Top>1.75cm</Top>
+            <ColumnGroupings>
+              <ColumnGrouping>
+                <Height>0.75cm</Height>
+                <DynamicColumns>
+                  <Grouping Name="matrix1_datatime">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!datatime.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Grouping>
+                  <Sorting>
+                    <SortBy>
+                      <SortExpression>=Fields!datatime.Value</SortExpression>
+                      <Direction>Ascending</Direction>
+                    </SortBy>
+                  </Sorting>
+                  <ReportItems>
+                    <Textbox Name="datatime">
+                      <rd:DefaultName>datatime</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>#b9bdaa</BackgroundColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontFamily>新細明體</FontFamily>
+                        <FontSize>11pt</FontSize>
+                        <FontWeight>Bolder</FontWeight>
+                        <Format>yyyy/MM</Format>
+                        <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>5</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=CDate(Fields!datatime.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </DynamicColumns>
+              </ColumnGrouping>
+            </ColumnGroupings>
+            <Width>13.91621cm</Width>
+            <Corner>
+              <ReportItems>
+                <Rectangle Name="rectangle1">
+                  <ZIndex>6</ZIndex>
+                  <ReportItems>
+                    <Textbox Name="textbox5">
+                      <rd:DefaultName>textbox5</rd:DefaultName>
+                      <Width>2.5cm</Width>
+                      <Style>
+                        <BackgroundColor>#b9bdaa</BackgroundColor>
+                        <BorderStyle>
+                          <Left>None</Left>
+                          <Right>Solid</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontFamily>新細明體</FontFamily>
+                        <FontSize>11pt</FontSize>
+                        <FontWeight>Bolder</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>2</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Left>6cm</Left>
+                      <Height>0.62998cm</Height>
+                      <Value>Perso廠</Value>
+                    </Textbox>
+                    <Textbox Name="textbox4">
+                      <rd:DefaultName>textbox4</rd:DefaultName>
+                      <Width>2.75cm</Width>
+                      <Style>
+                        <BackgroundColor>#b9bdaa</BackgroundColor>
+                        <BorderStyle>
+                          <Left>None</Left>
+                          <Right>Solid</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontFamily>新細明體</FontFamily>
+                        <FontSize>11pt</FontSize>
+                        <FontWeight>Bolder</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>1</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Left>3cm</Left>
+                      <Height>0.62998cm</Height>
+                      <Value>品名</Value>
+                    </Textbox>
+                    <Textbox Name="textbox3">
+                      <rd:DefaultName>textbox3</rd:DefaultName>
+                      <Width>2.75cm</Width>
+                      <Style>
+                        <BackgroundColor>#b9bdaa</BackgroundColor>
+                        <BorderStyle>
+                          <Right>Solid</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontFamily>新細明體</FontFamily>
+                        <FontSize>11pt</FontSize>
+                        <FontWeight>Bolder</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <Height>0.62998cm</Height>
+                      <Value>品名編號</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <Style>
+                    <BackgroundColor>#b9bdaa</BackgroundColor>
+                    <BorderStyle>
+                      <Default>Solid</Default>
+                    </BorderStyle>
+                    <FontFamily>新細明體</FontFamily>
+                  </Style>
+                </Rectangle>
+              </ReportItems>
+            </Corner>
+            <Style>
+              <BorderStyle>
+                <Default>Solid</Default>
+              </BorderStyle>
+            </Style>
+            <MatrixRows>
+              <MatrixRow>
+                <Height>0.5cm</Height>
+                <MatrixCells>
+                  <MatrixCell>
+                    <ReportItems>
+                      <Textbox Name="textbox2">
+                        <rd:DefaultName>textbox2</rd:DefaultName>
+                        <Style>
+                          <BackgroundColor>#b8c8bb</BackgroundColor>
+                          <BorderStyle>
+                            <Default>Solid</Default>
+                          </BorderStyle>
+                          <FontFamily>新細明體</FontFamily>
+                          <Format>N0</Format>
+                          <TextAlign>Right</TextAlign>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                        <CanGrow>true</CanGrow>
+                        <Value>=Sum(Fields!number.Value)</Value>
+                      </Textbox>
+                    </ReportItems>
+                  </MatrixCell>
+                </MatrixCells>
+              </MatrixRow>
+            </MatrixRows>
+            <Height>1.25cm</Height>
+          </Matrix>
+          <Textbox Name="textbox1">
+            <rd:DefaultName>textbox1</rd:DefaultName>
+            <Top>0.25cm</Top>
+            <Style>
+              <FontFamily>新細明體</FontFamily>
+              <FontSize>20pt</FontSize>
+              <FontWeight>700</FontWeight>
+              <TextAlign>Left</TextAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <Height>1cm</Height>
+            <Value>紙品物料月耗用量預測表</Value>
+          </Textbox>
+        </ReportItems>
+        <Width>16cm</Width>
+        <Style>
+          <FontFamily>新細明體</FontFamily>
+        </Style>
+        <Grouping Name="list1_Details_Group">
+          <GroupExpressions>
+            <GroupExpression>=Fields!xxtype.Value</GroupExpression>
+          </GroupExpressions>
+          <PageBreakAtEnd>true</PageBreakAtEnd>
+        </Grouping>
+        <Height>9cm</Height>
+      </List>
+    </ReportItems>
+    <Height>13cm</Height>
+  </Body>
+  <Language>zh-TW</Language>
+  <TopMargin>2.5cm</TopMargin>
+  <PageHeight>29.7cm</PageHeight>
+</Report>

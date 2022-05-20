@@ -1,0 +1,97 @@
+/* Autocomplete
+----------------------------------*/
+.ui-autocomplete
+{
+    background-color: #F2F2F2;
+    color: black;
+    font-size: 10pt;
+    font-family: '新細明體' , 'PMingLiU';
+}
+.ui-autocomplete-loading
+{
+    background-color: #F2F2F2;
+    color: Black;
+    background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat;
+    color: black;
+    font-size: 10pt;
+    font-family: '新細明體' , 'PMingLiU';
+}
+
+/* workarounds */
+* html .ui-autocomplete
+{
+    background-color: #F2F2F2;
+    color: Black;
+    width: 1px;
+    color: black;
+    font-size: 10pt;
+    font-family: '新細明體' , 'PMingLiU';
+}
+/* without this, the menu expands to 100% in IE6 */
+
+/* Menu
+----------------------------------*/
+.ui-menu
+{
+    background-color: #F2F2F2;
+    list-style: none;
+    padding: 2px;
+    margin: 0;
+    display: block;
+    color: black;
+    font-size: 10pt;
+    font-family: '新細明體' , 'PMingLiU';
+    width: 200px;
+    height: 200px;
+}
+.ui-menu .ui-menu
+{
+    background-color: #F2F2F2;
+    color: Black;
+    margin-top: -3px;
+    color: black;
+    font-size: 10pt;
+    font-family: '新細明體' , 'PMingLiU';
+    width: 190px;
+    height: 20px;
+}
+.ui-menu .ui-menu-item
+{
+    background-color: #F2F2F2;
+    color: Black;
+    margin: 0;
+    padding: 0;
+    float: left;
+    clear: left;
+    width: 100%;
+    color: black;
+    font-size: 10pt;
+    font-family: '新細明體' , 'PMingLiU';
+    width: 190px;
+    height: 20px;
+}
+.ui-menu .ui-menu-item a
+{
+    background-color: #F2F2F2;
+    text-decoration: none;
+    display: block;
+    padding: .2em .4em;
+    line-height: 1.5;
+    color: black;
+    font-size: 10pt;
+    font-family: '新細明體' , 'PMingLiU';
+    width: 250px;
+    height: 20px;
+}
+.ui-menu .ui-menu-item a.ui-state-hover, .ui-menu .ui-menu-item a.ui-state-active
+{
+    background-color: #F2F2F2;
+    color: Black;
+    font-weight: normal;
+    margin: -1px;
+    color: black;
+    font-size: 10pt;
+    font-family: '新細明體' , 'PMingLiU';
+    width: 250px;
+    height: 20px;
+}

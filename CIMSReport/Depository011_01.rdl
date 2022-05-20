@@ -1,0 +1,442 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <DataSources>
+    <DataSource Name="CIMS">
+      <rd:DataSourceID>752f22c2-b11f-4a1d-afd7-d8ab85ec6ed1</rd:DataSourceID>
+      <DataSourceReference>CIMS</DataSourceReference>
+    </DataSource>
+  </DataSources>
+  <InteractiveHeight>11in</InteractiveHeight>
+  <ReportParameters>
+    <ReportParameter Name="Move_ID">
+      <DataType>String</DataType>
+      <Prompt>Move_ID</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <rd:DrawGrid>true</rd:DrawGrid>
+  <InteractiveWidth>8.5in</InteractiveWidth>
+  <rd:GridSpacing>0.25cm</rd:GridSpacing>
+  <rd:SnapToGrid>true</rd:SnapToGrid>
+  <RightMargin>1cm</RightMargin>
+  <LeftMargin>1cm</LeftMargin>
+  <BottomMargin>2.5cm</BottomMargin>
+  <rd:ReportID>ecbf04a6-9613-4278-a456-c6ecd5432011</rd:ReportID>
+  <PageWidth>21cm</PageWidth>
+  <DataSets>
+    <DataSet Name="CIMS">
+      <Fields>
+        <Field Name="Move_Date">
+          <DataField>Move_Date</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="Move_Number">
+          <DataField>Move_Number</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="FFName">
+          <DataField>FFName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="TFName">
+          <DataField>TFName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Move_ID">
+          <DataField>Move_ID</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="FactoryName">
+          <DataField>FactoryName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Materiel_Name">
+          <DataField>Materiel_Name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>CIMS</DataSourceName>
+        <CommandText>SELECT         MSM.Move_Date, MSM.Move_Number, FF.Factory_ShortName_CN AS FFName, 
+                          TF.Factory_ShortName_CN AS TFName, MSM.Move_ID, 
+                          FF.Factory_ShortName_CN AS FactoryName, 
+                          CASE substring(MSM.Serial_Number, 1, 1) 
+                          WHEN 'B' THEN CE.NAME WHEN 'A' THEN EI.NAME WHEN 'C' THEN DM.NAME END
+                           AS Materiel_Name
+FROM             MATERIEL_STOCKS_MOVE AS MSM INNER JOIN
+                          FACTORY AS FF ON FF.RST = 'A' AND FF.Is_Perso = 'Y' AND 
+                          MSM.From_Factory_RID = FF.RID INNER JOIN
+                          FACTORY AS TF ON TF.RST = 'A' AND TF.Is_Perso = 'Y' AND 
+                          MSM.To_Factory_RID = TF.RID LEFT OUTER JOIN
+                          CARD_EXPONENT AS CE ON CE.RST = 'A' AND 
+                          MSM.Serial_Number = CE.Serial_Number LEFT OUTER JOIN
+                          ENVELOPE_INFO AS EI ON EI.RST = 'A' AND 
+                          MSM.Serial_Number = EI.Serial_Number LEFT OUTER JOIN
+                          DMTYPE_INFO AS DM ON DM.RST = 'A' AND 
+                          MSM.Serial_Number = DM.Serial_Number
+WHERE         (MSM.RST = 'A') and MSM.Move_ID = @Move_ID
+UNION
+SELECT         MSM.Move_Date, MSM.Move_Number, FF.Factory_ShortName_CN AS FFName, 
+                          TF.Factory_ShortName_CN AS TFName, MSM.Move_ID, 
+                          TF.Factory_ShortName_CN AS FactoryName, 
+                          CASE substring(MSM.Serial_Number, 1, 1) 
+                          WHEN 'B' THEN CE.NAME WHEN 'A' THEN EI.NAME WHEN 'C' THEN DM.NAME END
+                           AS Materiel_Name
+FROM             MATERIEL_STOCKS_MOVE AS MSM INNER JOIN
+                          FACTORY AS FF ON FF.RST = 'A' AND FF.Is_Perso = 'Y' AND 
+                          MSM.From_Factory_RID = FF.RID INNER JOIN
+                          FACTORY AS TF ON TF.RST = 'A' AND TF.Is_Perso = 'Y' AND 
+                          MSM.To_Factory_RID = TF.RID LEFT OUTER JOIN
+                          CARD_EXPONENT AS CE ON CE.RST = 'A' AND 
+                          MSM.Serial_Number = CE.Serial_Number LEFT OUTER JOIN
+                          ENVELOPE_INFO AS EI ON EI.RST = 'A' AND 
+                          MSM.Serial_Number = EI.Serial_Number LEFT OUTER JOIN
+                          DMTYPE_INFO AS DM ON DM.RST = 'A' AND 
+                          MSM.Serial_Number = DM.Serial_Number
+WHERE         (MSM.RST = 'A') and MSM.Move_ID = @Move_ID</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@Move_ID">
+            <Value>=Parameters!Move_ID.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+  </DataSets>
+  <Width>19.25cm</Width>
+  <Body>
+    <ColumnSpacing>1cm</ColumnSpacing>
+    <ReportItems>
+      <List Name="List1">
+        <Sorting>
+          <SortBy>
+            <SortExpression>=Fields!FactoryName.Value</SortExpression>
+            <Direction>Ascending</Direction>
+          </SortBy>
+        </Sorting>
+        <Left>0.25cm</Left>
+        <DataSetName>CIMS</DataSetName>
+        <ReportItems>
+          <Table Name="table2">
+            <ZIndex>4</ZIndex>
+            <DataSetName>CIMS</DataSetName>
+            <Top>5.75cm</Top>
+            <Details>
+              <TableRows>
+                <TableRow>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="textbox21">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                          <ZIndex>3</ZIndex>
+                          <CanGrow>true</CanGrow>
+                          <Value>=Fields!Materiel_Name.Value</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="textbox22">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <Format>N0</Format>
+                            <TextAlign>Right</TextAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                          <ZIndex>2</ZIndex>
+                          <CanGrow>true</CanGrow>
+                          <Value>=Fields!Move_Number.Value</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="textbox23">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                          <ZIndex>1</ZIndex>
+                          <CanGrow>true</CanGrow>
+                          <Value>=Fields!TFName.Value</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="textbox24">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                          <CanGrow>true</CanGrow>
+                          <Value>=Fields!FFName.Value</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                  <Height>0.60357cm</Height>
+                </TableRow>
+              </TableRows>
+            </Details>
+            <Style>
+              <FontFamily>新細明體</FontFamily>
+              <TextAlign>Center</TextAlign>
+            </Style>
+            <Header>
+              <TableRows>
+                <TableRow>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="textbox16">
+                          <rd:DefaultName>textbox16</rd:DefaultName>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <FontFamily>新細明體</FontFamily>
+                            <TextAlign>Center</TextAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                          <ZIndex>9</ZIndex>
+                          <CanGrow>true</CanGrow>
+                          <Value>Perso廠</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ColSpan>3</ColSpan>
+                      <ReportItems>
+                        <Textbox Name="Perso_Factory_Name">
+                          <rd:DefaultName>Perso_Factory_Name</rd:DefaultName>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <FontFamily>新細明體</FontFamily>
+                            <TextAlign>Left</TextAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                          <ZIndex>8</ZIndex>
+                          <CanGrow>true</CanGrow>
+                          <Value>=Fields!FactoryName.Value</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                  <Height>0.60357cm</Height>
+                </TableRow>
+                <TableRow>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="textbox20">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                          <ZIndex>7</ZIndex>
+                          <CanGrow>true</CanGrow>
+                          <Value>品名</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="textbox11">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                          <ZIndex>6</ZIndex>
+                          <CanGrow>true</CanGrow>
+                          <Value>移轉數量</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="textbox12">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                          <ZIndex>5</ZIndex>
+                          <CanGrow>true</CanGrow>
+                          <Value>轉入Perso廠</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="textbox14">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                          <ZIndex>4</ZIndex>
+                          <CanGrow>true</CanGrow>
+                          <Value>轉出Perso廠</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                  <Height>0.60357cm</Height>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <TableColumns>
+              <TableColumn>
+                <Width>4.5cm</Width>
+              </TableColumn>
+              <TableColumn>
+                <Width>3.52646cm</Width>
+              </TableColumn>
+              <TableColumn>
+                <Width>4.25cm</Width>
+              </TableColumn>
+              <TableColumn>
+                <Width>6.5cm</Width>
+              </TableColumn>
+            </TableColumns>
+            <Height>1.81071cm</Height>
+          </Table>
+          <Textbox Name="textbox13">
+            <rd:DefaultName>textbox13</rd:DefaultName>
+            <Top>4.25cm</Top>
+            <Width>11.75cm</Width>
+            <Style>
+              <FontFamily>新細明體</FontFamily>
+              <TextAlign>Right</TextAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+            <ZIndex>3</ZIndex>
+            <CanGrow>true</CanGrow>
+            <Left>7cm</Left>
+            <Height>0.63492cm</Height>
+            <Value>="移轉單號：" +First(Fields!Move_ID.Value, "CIMS")</Value>
+          </Textbox>
+          <Textbox Name="textbox1">
+            <Top>2.75cm</Top>
+            <Width>18.75cm</Width>
+            <Style>
+              <FontFamily>新細明體</FontFamily>
+              <TextAlign>Right</TextAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+            <ZIndex>2</ZIndex>
+            <CanGrow>true</CanGrow>
+            <Height>0.63492cm</Height>
+            <Value>="製表日期：" + Format(Now(),"yyyy/MM/dd")</Value>
+          </Textbox>
+          <Textbox Name="textbox10">
+            <Top>1.5cm</Top>
+            <Width>18.75cm</Width>
+            <Style>
+              <FontFamily>新細明體</FontFamily>
+              <FontSize>14pt</FontSize>
+              <FontWeight>700</FontWeight>
+              <TextAlign>Center</TextAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+            <ZIndex>1</ZIndex>
+            <CanGrow>true</CanGrow>
+            <Height>1cm</Height>
+            <Value>紙品物料移轉單</Value>
+          </Textbox>
+          <Textbox Name="textbox9">
+            <Width>18.75cm</Width>
+            <Style>
+              <FontFamily>新細明體</FontFamily>
+              <FontSize>14pt</FontSize>
+              <FontWeight>700</FontWeight>
+              <TextAlign>Center</TextAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <Height>1cm</Height>
+            <Value>中國信託商業銀行</Value>
+          </Textbox>
+        </ReportItems>
+        <Width>18.77646cm</Width>
+        <Grouping Name="list1_FactoryName">
+          <GroupExpressions>
+            <GroupExpression>=Fields!FactoryName.Value</GroupExpression>
+          </GroupExpressions>
+          <PageBreakAtEnd>true</PageBreakAtEnd>
+        </Grouping>
+        <Height>8.75cm</Height>
+      </List>
+    </ReportItems>
+    <Height>10.25cm</Height>
+  </Body>
+  <Language>zh-TW</Language>
+  <TopMargin>2.5cm</TopMargin>
+  <PageHeight>29.7cm</PageHeight>
+</Report>

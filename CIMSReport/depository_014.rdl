@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <DataSources>
+    <DataSource Name="CIMS">
+      <DataSourceReference>CIMS</DataSourceReference>
+      <rd:DataSourceID>a82d6005-6e79-4f63-971a-46b1a3216925</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <BottomMargin>2.5cm</BottomMargin>
+  <RightMargin>2.5cm</RightMargin>
+  <PageWidth>21cm</PageWidth>
+  <ReportParameters>
+    <ReportParameter Name="TimeMark">
+      <DataType>String</DataType>
+      <Prompt>TimeMark</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <rd:DrawGrid>true</rd:DrawGrid>
+  <InteractiveWidth>21cm</InteractiveWidth>
+  <rd:GridSpacing>0.25cm</rd:GridSpacing>
+  <rd:SnapToGrid>true</rd:SnapToGrid>
+  <Body>
+    <ColumnSpacing>1cm</ColumnSpacing>
+    <ReportItems>
+      <List Name="list1">
+        <Left>0.25cm</Left>
+        <ReportItems>
+          <Matrix Name="matrix1">
+            <MatrixColumns>
+              <MatrixColumn>
+                <Width>2.88619cm</Width>
+              </MatrixColumn>
+            </MatrixColumns>
+            <Left>0.25cm</Left>
+            <RowGroupings>
+              <RowGrouping>
+                <Width>2.88619cm</Width>
+                <DynamicRows>
+                  <ReportItems>
+                    <Textbox Name="textbox11">
+                      <rd:DefaultName>textbox11</rd:DefaultName>
+                      <ZIndex>4</ZIndex>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <FontFamily>新細明體</FontFamily>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!card_type.Value+"-"+Fields!affinity.Value+"-"+Fields!photo.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <Grouping Name="matrix1_RowGroup6">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!keyWord.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Grouping>
+                </DynamicRows>
+              </RowGrouping>
+              <RowGrouping>
+                <Width>2.88619cm</Width>
+                <DynamicRows>
+                  <ReportItems>
+                    <Textbox Name="textbox12">
+                      <rd:DefaultName>textbox12</rd:DefaultName>
+                      <ZIndex>3</ZIndex>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <FontFamily>新細明體</FontFamily>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!name.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <Grouping Name="matrix1_RowGroup5">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!CardType_Rid.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Grouping>
+                </DynamicRows>
+              </RowGrouping>
+              <RowGrouping>
+                <Width>2.88619cm</Width>
+                <DynamicRows>
+                  <ReportItems>
+                    <Textbox Name="textbox7">
+                      <rd:DefaultName>textbox7</rd:DefaultName>
+                      <ZIndex>2</ZIndex>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <FontFamily>新細明體</FontFamily>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!factory_shortName_CN.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <Grouping Name="matrix1_RowGroup3">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!Perso_Factory_Rid.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Grouping>
+                </DynamicRows>
+              </RowGrouping>
+              <RowGrouping>
+                <Width>5.11397cm</Width>
+                <DynamicRows>
+                  <ReportItems>
+                    <Textbox Name="textbox6">
+                      <rd:DefaultName>textbox6</rd:DefaultName>
+                      <ZIndex>1</ZIndex>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <FontFamily>新細明體</FontFamily>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <Value>=IIF(Fields!ColName.Value="A","A.預估前日庫存數",
+IIF(Fields!ColName.Value="A1","A'.預估前日庫存數（調整後）",
+IIF(Fields!ColName.Value="B","B.預估每日新進件",
+IIF(Fields!ColName.Value="C","C.預估每日新件調整",
+IIF(Fields!ColName.Value="D1","D1.預估每日掛補量",
+IIF(Fields!ColName.Value="D2","D2.預估每日毀補量",
+IIF(Fields!ColName.Value="E","E.預估該月換卡耗用量",
+IIF(Fields!ColName.Value="F","F.已下單預計當日到貨數",
+IIF(Fields!ColName.Value="G","G.預估當日庫存數",
+IIF(Fields!ColName.Value="G1","G'.預估當日庫存數（調整後，暫存）",
+IIF(Fields!ColName.Value="H","H.檢核欄位",
+IIF(Fields!ColName.Value="J","J.系統建議or人員調整採購量",
+IIF(Fields!ColName.Value="K","K.調整後預估庫存=G'+J",
+IIF(Fields!ColName.Value="L","L.調整後檢核欄位",
+Fields!ColName.Value))))))))))))))</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <Sorting>
+                    <SortBy>
+                      <SortExpression>=Fields!ColName.Value</SortExpression>
+                      <Direction>Ascending</Direction>
+                    </SortBy>
+                  </Sorting>
+                  <Grouping Name="matrix1_RowGroup2">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!ColName.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Grouping>
+                </DynamicRows>
+              </RowGrouping>
+            </RowGroupings>
+            <ColumnGroupings>
+              <ColumnGrouping>
+                <DynamicColumns>
+                  <ReportItems>
+                    <Textbox Name="textbox3">
+                      <rd:DefaultName>textbox3</rd:DefaultName>
+                      <ZIndex>6</ZIndex>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <FontFamily>新細明體</FontFamily>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Format(Fields!CDay.Value,"yyyy-MM-dd")</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <Subtotal>
+                    <ReportItems>
+                      <Textbox Name="textbox8">
+                        <rd:DefaultName>textbox8</rd:DefaultName>
+                        <ZIndex>5</ZIndex>
+                        <Style>
+                          <BorderStyle>
+                            <Default>Solid</Default>
+                          </BorderStyle>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingBottom>2pt</PaddingBottom>
+                          <FontFamily>新細明體</FontFamily>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                        </Style>
+                        <CanGrow>true</CanGrow>
+                        <Value>總計</Value>
+                      </Textbox>
+                    </ReportItems>
+                  </Subtotal>
+                  <Sorting>
+                    <SortBy>
+                      <SortExpression>=Fields!CDay.Value</SortExpression>
+                      <Direction>Ascending</Direction>
+                    </SortBy>
+                  </Sorting>
+                  <Grouping Name="matrix1_ColumnGroup1">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!CDay.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Grouping>
+                </DynamicColumns>
+                <Height>0.63492cm</Height>
+              </ColumnGrouping>
+            </ColumnGroupings>
+            <Top>4.25cm</Top>
+            <ZIndex>3</ZIndex>
+            <Width>19.54492cm</Width>
+            <Corner>
+              <ReportItems>
+                <Textbox Name="textbox2">
+                  <rd:DefaultName>textbox2</rd:DefaultName>
+                  <ZIndex>7</ZIndex>
+                  <Style>
+                    <BorderStyle>
+                      <Default>Solid</Default>
+                    </BorderStyle>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingBottom>2pt</PaddingBottom>
+                    <FontFamily>新細明體</FontFamily>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>2pt</PaddingTop>
+                  </Style>
+                  <CanGrow>true</CanGrow>
+                  <Value>="每日安全庫存檢視"+" N="+Fields!NValue.Value.ToString()+"日"+" Y="+Fields!XTypeValue.Value.ToString()</Value>
+                </Textbox>
+              </ReportItems>
+            </Corner>
+            <Style>
+              <BorderStyle>
+                <Default>Solid</Default>
+              </BorderStyle>
+              <FontFamily>新細明體</FontFamily>
+            </Style>
+            <Height>1.26984cm</Height>
+            <MatrixRows>
+              <MatrixRow>
+                <Height>0.63492cm</Height>
+                <MatrixCells>
+                  <MatrixCell>
+                    <ReportItems>
+                      <Textbox Name="textbox5">
+                        <rd:DefaultName>textbox5</rd:DefaultName>
+                        <Style>
+                          <BorderStyle>
+                            <Default>Solid</Default>
+                          </BorderStyle>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingBottom>2pt</PaddingBottom>
+                          <FontFamily>新細明體</FontFamily>
+                          <Format>=iif((Fields!ColName.Value="H" or Fields!ColName.Value="L"),"N1","N0")</Format>
+                          <BackgroundColor>=IIF(Fields!ColName.Value="A1" or Fields!ColName.Value="G1", "Yellow"
+, IIF(Fields!ColName.Value="H" and Fields!ColValue.Value&lt;Fields!NValue.Value,"Red", "White"))</BackgroundColor>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                        </Style>
+                        <CanGrow>true</CanGrow>
+                        <Value>=sum(Fields!ColValue.Value)</Value>
+                      </Textbox>
+                    </ReportItems>
+                  </MatrixCell>
+                </MatrixCells>
+              </MatrixRow>
+            </MatrixRows>
+          </Matrix>
+          <Textbox Name="textbox1">
+            <Left>0.125cm</Left>
+            <Top>2.55754cm</Top>
+            <ZIndex>2</ZIndex>
+            <Width>18.75cm</Width>
+            <Style>
+              <TextAlign>Right</TextAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingBottom>2pt</PaddingBottom>
+              <FontFamily>新細明體</FontFamily>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <Height>0.63492cm</Height>
+            <Value>="製表日期：" + Format(Now(),"yyyy/MM/dd")</Value>
+          </Textbox>
+          <Textbox Name="textbox10">
+            <Left>0.125cm</Left>
+            <Top>1.75cm</Top>
+            <ZIndex>1</ZIndex>
+            <Width>18.75cm</Width>
+            <Style>
+              <TextAlign>Center</TextAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingBottom>2pt</PaddingBottom>
+              <FontFamily>新細明體</FontFamily>
+              <FontWeight>700</FontWeight>
+              <FontSize>14pt</FontSize>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <Height>1cm</Height>
+            <Value>每日監控表</Value>
+          </Textbox>
+          <Textbox Name="textbox9">
+            <Left>0.25cm</Left>
+            <Top>0.5cm</Top>
+            <Width>18.75cm</Width>
+            <Style>
+              <TextAlign>Center</TextAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingBottom>2pt</PaddingBottom>
+              <FontFamily>新細明體</FontFamily>
+              <FontWeight>700</FontWeight>
+              <FontSize>14pt</FontSize>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <Height>1cm</Height>
+            <Value>中國信託商業銀行</Value>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>depository014</DataSetName>
+        <Top>0.25cm</Top>
+        <Style>
+          <FontFamily>新細明體</FontFamily>
+        </Style>
+        <Grouping Name="list1_Details_Group">
+          <PageBreakAtEnd>true</PageBreakAtEnd>
+          <GroupExpressions>
+            <GroupExpression>=Fields!XType.Value</GroupExpression>
+          </GroupExpressions>
+        </Grouping>
+        <Height>5.75cm</Height>
+      </List>
+    </ReportItems>
+    <Height>6.25cm</Height>
+  </Body>
+  <rd:ReportID>d4a0dca2-bd05-45df-be62-ed8b5f5ac942</rd:ReportID>
+  <LeftMargin>2.5cm</LeftMargin>
+  <DataSets>
+    <DataSet Name="depository014">
+      <Query>
+        <CommandText>SELECT         STR(CardType_Rid) + '-' + LTRIM(STR(Perso_Factory_rid)) AS keyWord, 
+                          Perso_Factory_rid, CardType_Rid, XType, ColName, ColValue, CDay, 
+                          Factory_shortName_CN, card_type, affinity, Photo, Name, XTypeValue, 
+                          NValue
+FROM             RPT_Depository014
+WHERE         (TimeMark = @TimeMark)
+ORDER BY  Rid</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@TimeMark">
+            <Value>=Parameters!TimeMark.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <DataSourceName>CIMS</DataSourceName>
+      </Query>
+      <Fields>
+        <Field Name="keyWord">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>keyWord</DataField>
+        </Field>
+        <Field Name="Perso_Factory_Rid">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>Perso_Factory_rid</DataField>
+        </Field>
+        <Field Name="CardType_Rid">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>CardType_Rid</DataField>
+        </Field>
+        <Field Name="XType">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>XType</DataField>
+        </Field>
+        <Field Name="ColName">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>ColName</DataField>
+        </Field>
+        <Field Name="ColValue">
+          <rd:TypeName>System.Decimal</rd:TypeName>
+          <DataField>ColValue</DataField>
+        </Field>
+        <Field Name="CDay">
+          <rd:TypeName>System.DateTime</rd:TypeName>
+          <DataField>CDay</DataField>
+        </Field>
+        <Field Name="factory_shortName_CN">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>Factory_shortName_CN</DataField>
+        </Field>
+        <Field Name="card_type">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>card_type</DataField>
+        </Field>
+        <Field Name="affinity">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>affinity</DataField>
+        </Field>
+        <Field Name="photo">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>Photo</DataField>
+        </Field>
+        <Field Name="name">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>Name</DataField>
+        </Field>
+        <Field Name="XTypeValue">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>XTypeValue</DataField>
+        </Field>
+        <Field Name="NValue">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>NValue</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <Width>22.93111cm</Width>
+  <InteractiveHeight>29.7cm</InteractiveHeight>
+  <Language>zh-TW</Language>
+  <TopMargin>2.5cm</TopMargin>
+  <PageHeight>29.7cm</PageHeight>
+</Report>

@@ -1,0 +1,333 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <DataSources>
+    <DataSource Name="CIMS">
+      <rd:DataSourceID>9ae3441a-a17a-4747-a7d3-1ed72f559519</rd:DataSourceID>
+      <DataSourceReference>CIMS</DataSourceReference>
+    </DataSource>
+  </DataSources>
+  <InteractiveHeight>11in</InteractiveHeight>
+  <ReportParameters>
+    <ReportParameter Name="begintime">
+      <DataType>DateTime</DataType>
+      <Prompt>begintime</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="endtime">
+      <DataType>DateTime</DataType>
+      <Prompt>endtime</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="action">
+      <DataType>String</DataType>
+      <Prompt>action</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="actionType">
+      <DataType>String</DataType>
+      <Prompt>actionType</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Searchtype">
+      <DataType>String</DataType>
+      <Prompt>Searchtype</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="actiontxt">
+      <DataType>String</DataType>
+      <Prompt>actiontxt</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <rd:DrawGrid>true</rd:DrawGrid>
+  <InteractiveWidth>8.5in</InteractiveWidth>
+  <rd:GridSpacing>0.25cm</rd:GridSpacing>
+  <rd:SnapToGrid>true</rd:SnapToGrid>
+  <RightMargin>2.5cm</RightMargin>
+  <LeftMargin>2.5cm</LeftMargin>
+  <BottomMargin>2.5cm</BottomMargin>
+  <rd:ReportID>3559da49-12b2-4415-93a7-8b934851b777</rd:ReportID>
+  <PageWidth>21cm</PageWidth>
+  <DataSets>
+    <DataSet Name="CIMS">
+      <Fields>
+        <Field Name="cardrid">
+          <DataField>cardrid</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="cardname">
+          <DataField>cardname</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="cardtype">
+          <DataField>cardtype</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="number">
+          <DataField>number</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="datatime">
+          <DataField>datatime</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>CIMS</DataSourceName>
+        <CommandType>StoredProcedure</CommandType>
+        <CommandText>proc_report016</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@begintime">
+            <Value>=Parameters!begintime.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@endtime">
+            <Value>=Parameters!endtime.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@action">
+            <Value>=Parameters!action.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@actionType">
+            <Value>=Parameters!actionType.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@Searchtype">
+            <Value>=Parameters!Searchtype.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+  </DataSets>
+  <Width>14.25cm</Width>
+  <Body>
+    <ColumnSpacing>1cm</ColumnSpacing>
+    <ReportItems>
+      <Textbox Name="textbox1">
+        <rd:DefaultName>textbox1</rd:DefaultName>
+        <Style>
+          <BackgroundColor>White</BackgroundColor>
+          <FontFamily>新細明體</FontFamily>
+          <FontSize>20pt</FontSize>
+          <TextAlign>Left</TextAlign>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+          <PaddingBottom>2pt</PaddingBottom>
+        </Style>
+        <ZIndex>1</ZIndex>
+        <CanGrow>true</CanGrow>
+        <Height>1.25cm</Height>
+        <Value>="匯入小計統計報表-"+Parameters!actiontxt.Value</Value>
+      </Textbox>
+      <Matrix Name="matrix1">
+        <MatrixColumns>
+          <MatrixColumn>
+            <Width>2.83088cm</Width>
+          </MatrixColumn>
+        </MatrixColumns>
+        <DataSetName>CIMS</DataSetName>
+        <RowGroupings>
+          <RowGrouping>
+            <Width>3.49074cm</Width>
+            <DynamicRows>
+              <Grouping Name="matrix1_cardtype">
+                <GroupExpressions>
+                  <GroupExpression>=Fields!cardtype.Value</GroupExpression>
+                </GroupExpressions>
+              </Grouping>
+              <Sorting>
+                <SortBy>
+                  <SortExpression>=Fields!cardtype.Value</SortExpression>
+                  <Direction>Ascending</Direction>
+                </SortBy>
+              </Sorting>
+              <ReportItems>
+                <Textbox Name="cardtype">
+                  <rd:DefaultName>cardtype</rd:DefaultName>
+                  <Style>
+                    <BackgroundColor>#b8c8bb</BackgroundColor>
+                    <BorderStyle>
+                      <Default>Solid</Default>
+                    </BorderStyle>
+                    <FontFamily>新細明體</FontFamily>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>2pt</PaddingTop>
+                    <PaddingBottom>2pt</PaddingBottom>
+                  </Style>
+                  <ZIndex>2</ZIndex>
+                  <CanGrow>true</CanGrow>
+                  <Value>=Fields!cardtype.Value</Value>
+                </Textbox>
+              </ReportItems>
+            </DynamicRows>
+          </RowGrouping>
+          <RowGrouping>
+            <Width>2.75cm</Width>
+            <DynamicRows>
+              <Grouping Name="matrix1_cardname">
+                <GroupExpressions>
+                  <GroupExpression>=Fields!cardname.Value</GroupExpression>
+                </GroupExpressions>
+              </Grouping>
+              <Sorting>
+                <SortBy>
+                  <SortExpression>=Fields!cardname.Value</SortExpression>
+                  <Direction>Ascending</Direction>
+                </SortBy>
+              </Sorting>
+              <ReportItems>
+                <Textbox Name="cardname">
+                  <rd:DefaultName>cardname</rd:DefaultName>
+                  <Style>
+                    <BackgroundColor>#b8c8bb</BackgroundColor>
+                    <BorderStyle>
+                      <Default>Solid</Default>
+                    </BorderStyle>
+                    <FontFamily>新細明體</FontFamily>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>2pt</PaddingTop>
+                    <PaddingBottom>2pt</PaddingBottom>
+                  </Style>
+                  <ZIndex>1</ZIndex>
+                  <CanGrow>true</CanGrow>
+                  <Value>=Fields!cardname.Value</Value>
+                </Textbox>
+              </ReportItems>
+            </DynamicRows>
+          </RowGrouping>
+        </RowGroupings>
+        <Top>1.5cm</Top>
+        <ColumnGroupings>
+          <ColumnGrouping>
+            <Height>1cm</Height>
+            <DynamicColumns>
+              <Grouping Name="matrix1_datatime">
+                <GroupExpressions>
+                  <GroupExpression>=Fields!datatime.Value</GroupExpression>
+                </GroupExpressions>
+              </Grouping>
+              <Sorting>
+                <SortBy>
+                  <SortExpression>=Fields!datatime.Value</SortExpression>
+                  <Direction>Ascending</Direction>
+                </SortBy>
+              </Sorting>
+              <ReportItems>
+                <Textbox Name="datatime">
+                  <rd:DefaultName>datatime</rd:DefaultName>
+                  <Style>
+                    <BackgroundColor>#b9bdaa</BackgroundColor>
+                    <BorderStyle>
+                      <Default>Solid</Default>
+                      <Left>Solid</Left>
+                      <Right>Solid</Right>
+                      <Top>Solid</Top>
+                      <Bottom>Solid</Bottom>
+                    </BorderStyle>
+                    <FontFamily>新細明體</FontFamily>
+                    <FontSize>11pt</FontSize>
+                    <FontWeight>Bolder</FontWeight>
+                    <PaddingLeft>10pt</PaddingLeft>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>10pt</PaddingTop>
+                    <PaddingBottom>2pt</PaddingBottom>
+                  </Style>
+                  <ZIndex>3</ZIndex>
+                  <CanGrow>true</CanGrow>
+                  <Value>=Fields!datatime.Value</Value>
+                </Textbox>
+              </ReportItems>
+            </DynamicColumns>
+          </ColumnGrouping>
+        </ColumnGroupings>
+        <Width>9.07162cm</Width>
+        <Corner>
+          <ReportItems>
+            <Rectangle Name="rectangle1">
+              <ZIndex>4</ZIndex>
+              <ReportItems>
+                <Textbox Name="textbox4">
+                  <rd:DefaultName>textbox4</rd:DefaultName>
+                  <Style>
+                    <BackgroundColor>#b9bdaa</BackgroundColor>
+                    <BorderStyle>
+                      <Left>Solid</Left>
+                      <Right>Solid</Right>
+                    </BorderStyle>
+                    <FontFamily>新細明體</FontFamily>
+                    <FontSize>11pt</FontSize>
+                    <FontWeight>Bolder</FontWeight>
+                    <TextAlign>Center</TextAlign>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>10pt</PaddingTop>
+                    <PaddingBottom>2pt</PaddingBottom>
+                  </Style>
+                  <ZIndex>1</ZIndex>
+                  <CanGrow>true</CanGrow>
+                  <Left>3.5cm</Left>
+                  <Value>版面簡稱</Value>
+                </Textbox>
+                <Textbox Name="textbox3">
+                  <rd:DefaultName>textbox3</rd:DefaultName>
+                  <Width>3.5cm</Width>
+                  <Style>
+                    <BackgroundColor>#b9bdaa</BackgroundColor>
+                    <FontFamily>新細明體</FontFamily>
+                    <FontSize>11pt</FontSize>
+                    <FontWeight>Bolder</FontWeight>
+                    <TextAlign>Center</TextAlign>
+                    <PaddingLeft>2pt</PaddingLeft>
+                    <PaddingRight>2pt</PaddingRight>
+                    <PaddingTop>10pt</PaddingTop>
+                    <PaddingBottom>2pt</PaddingBottom>
+                  </Style>
+                  <CanGrow>true</CanGrow>
+                  <Value>卡片編號</Value>
+                </Textbox>
+              </ReportItems>
+              <Style>
+                <BackgroundColor>#b9bdaa</BackgroundColor>
+                <BorderStyle>
+                  <Default>Solid</Default>
+                </BorderStyle>
+                <FontFamily>新細明體</FontFamily>
+              </Style>
+            </Rectangle>
+          </ReportItems>
+        </Corner>
+        <Style>
+          <TextAlign>Center</TextAlign>
+        </Style>
+        <MatrixRows>
+          <MatrixRow>
+            <Height>0.5cm</Height>
+            <MatrixCells>
+              <MatrixCell>
+                <ReportItems>
+                  <Textbox Name="textbox2">
+                    <rd:DefaultName>textbox2</rd:DefaultName>
+                    <Style>
+                      <BackgroundColor>#b8c8bb</BackgroundColor>
+                      <BorderStyle>
+                        <Default>Solid</Default>
+                      </BorderStyle>
+                      <FontFamily>新細明體</FontFamily>
+                      <Format>N0</Format>
+                      <PaddingLeft>2pt</PaddingLeft>
+                      <PaddingRight>2pt</PaddingRight>
+                      <PaddingTop>2pt</PaddingTop>
+                      <PaddingBottom>2pt</PaddingBottom>
+                    </Style>
+                    <CanGrow>true</CanGrow>
+                    <Value>=sum(Fields!number.Value)</Value>
+                  </Textbox>
+                </ReportItems>
+              </MatrixCell>
+            </MatrixCells>
+          </MatrixRow>
+        </MatrixRows>
+        <Height>1.5cm</Height>
+      </Matrix>
+    </ReportItems>
+    <Height>3.5cm</Height>
+  </Body>
+  <Language>zh-TW</Language>
+  <TopMargin>2.5cm</TopMargin>
+  <PageHeight>29.7cm</PageHeight>
+</Report>

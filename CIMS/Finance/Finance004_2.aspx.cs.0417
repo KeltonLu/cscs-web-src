@@ -1,0 +1,2154 @@
+﻿//******************************************************************
+//*  作    者：lantaosu
+//*  功能說明：月庫存成本明細查詢
+//*  創建日期：2008-12-5
+//*  修改日期：2008-12-10 12:00
+//*  修改記錄：
+//*            □2008-12-10
+//*              1.創建 蘇斕濤
+//*******************************************************************
+
+using System;
+using System.Data;
+using System.Configuration;
+using System.Collections;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Web.UI.WebControls.WebParts;
+using System.Web.UI.HtmlControls;
+
+public partial class Finance_Finance004_2 : PageBase
+{
+    Finance004_2BL bl = new Finance004_2BL();
+    Finance004_1BL bl1 = new Finance004_1BL();
+
+    //DataTable dtGResult;
+    bool isSecondBing = false;
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        this.gvpbMonthStockCost.PageSize = GlobalStringManager.PageSize;
+
+        if (!IsPostBack)
+        {
+            //初始化頁面
+            this.queryResult.Visible = false;
+            this.result2.Visible = false;
+
+            DataSet CooperatePersoList = bl.GetCooperatePersoList();
+            dropFactoryRID.DataSource = CooperatePersoList;
+            dropFactoryRID.DataValueField = "RID";
+            dropFactoryRID.DataTextField = "Factory_ShortName_CN";
+            dropFactoryRID.DataBind();
+            ListItem li = new ListItem("全部", "");
+            dropFactoryRID.Items.Insert(0, li);
+
+            DataSet Year = bl.GetYearList();
+            dropYear.DataSource = Year;
+            dropYear.DataValueField = "Year";
+            dropYear.DataTextField = "Year";
+            dropYear.DataBind();
+            dropYear.SelectedValue = DateTime.Now.Year.ToString();
+            dropMonth.SelectedValue = DateTime.Now.Month.ToString();
+
+            DataSet Use = bl.GetUseList();
+            dropUse.DataSource = Use;
+            dropUse.DataValueField = "Param_Code";
+            dropUse.DataTextField = "Param_Name";
+            dropUse.DataBind();
+
+            DataSet Group = bl.GetGroupList(dropUse.SelectedValue);
+            dropGroup.DataSource = Group;
+            dropGroup.DataValueField = "RID";
+            dropGroup.DataTextField = "Group_Name";
+            dropGroup.DataBind();
+
+            btnReport.Visible = false;
+        }
+    }
+
+    /// <summary>
+    /// 查詢該用途的所有卡穜群組，放於【群組】下拉框
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    protected void dropUse_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (dropUse.SelectedValue != "")
+        {
+            DataSet Group = bl.GetGroupList(dropUse.SelectedValue);
+            dropGroup.DataSource = Group;
+            dropGroup.DataValueField = "RID";
+            dropGroup.DataTextField = "Group_Name";
+            dropGroup.DataBind();
+        }
+        else
+        {
+            dropGroup.DataSource = "";
+            dropGroup.DataBind();
+            ListItem li2 = new ListItem("全部", "");
+            dropGroup.Items.Insert(0, li2);
+        }
+    }
+
+    /// <summary>
+    /// 查詢
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    protected void btnSearch_Click(object sender, EventArgs e)
+    {
+        string StartDate = null;
+        string EndDate = null;
+        string[] Date = new string[2];
+
+        if (dropGroup.SelectedValue.Trim() == "")
+        {
+            ShowMessage("群組不能為空");
+            return;
+        }
+
+        if (int.Parse(dropYear.SelectedItem.Text + dropMonth.SelectedValue.PadLeft(2, '0')) < 200905)
+        {
+            ShowMessage("只能執行2009/05之後的查詢");
+            return;
+        }
+
+        //獲取帳務起迄日
+        Date = bl1.GetDateFromAndDateTo(dropYear.SelectedItem.Text, dropMonth.SelectedValue);
+        if (Date == null)
+        {
+            ShowMessage("卡片成本帳務期間未設定");
+            return;
+        }
+        StartDate = Date[0];
+        EndDate = Date[1];
+        ViewState["DateFrom"] = StartDate;
+        ViewState["DateTo"] = EndDate;
+        //獲取上個帳務起迄日
+        string[] beginDate = new string[2];
+        string strYear;
+        string strMonth;
+        int intMonth = (Convert.ToInt32(dropMonth.SelectedValue.ToString()) - 1);
+        if (intMonth == 0)
+        {
+            strYear = Convert.ToString(Convert.ToInt32(dropYear.SelectedItem.Text.ToString()) - 1);
+            strMonth = "12";
+        }
+        else
+        {
+            strYear = dropYear.SelectedItem.Text.ToString();
+            strMonth = intMonth.ToString();
+        }
+        beginDate = bl1.GetDateFromAndDateTo(strYear, strMonth);
+        ViewState["beginDateFrom"] = beginDate[0];
+        ViewState["beginDateTo"] = beginDate[1];
+
+        //取得該日期區間内的第一個未日結日
+        string strUnCheckDate = bl1.GetUncheckDate(StartDate, EndDate);
+        if (strUnCheckDate != "")
+        {
+            ShowMessage(strUnCheckDate + "後未日結");
+            return;
+        }
+        else
+        {
+            string strWN = null;
+            lblTitle.Text = dropMonth.SelectedValue + "月份" + dropGroup.SelectedItem.Text + "庫存成本明細表";
+            lblDate.Text = StartDate.ToString() + "~" + EndDate.ToString();
+
+            gvpbMonthStockCost.BindData();
+
+            if (gvpbMonthStockCost.DataSource != null)
+            {
+                btnReport.Visible = true;
+
+                //DataTable dtGResult = (DataTable)this.gvpbMonthStockCost.DataSource;
+                ////String sTemp = Convert.ToString(dtResult.Rows[dtResult.Rows.Count - 1].ItemArray[0]);
+                //dtGResult.Rows[dtGResult.Rows.Count - 1].ItemArray[0] = "GuoJia";
+                //isSecondBing = true;
+                //gvpbMonthStockCost.DataSource = dtGResult;
+                //gvpbMonthStockCost.BindData();
+
+                if (dropFactoryRID.SelectedValue == "")
+                {
+                    lblTitle1.Text = dropGroup.SelectedItem.Text + "庫存殘值調整";
+
+                    //(YYYY/MM)委管庫存成本
+
+                    lblLast_W_Num.Text = DateTime.Parse(dropYear.SelectedValue + "/" + Convert.ToInt32(dropMonth.SelectedItem.Text)).AddMonths(-1).ToString("yyyy/MM") + "委管庫存成本";
+                    int month = (Convert.ToInt32(dropMonth.SelectedItem.Text) - 1);
+                    if (month == 0)
+                        strWN = bl.GetStockCostWNumber(Convert.ToString(Convert.ToInt32(dropYear.SelectedItem.Text) - 1) + "12", dropGroup.SelectedValue);
+                    else
+                    {
+                        if (month > 9)
+                            strWN = bl.GetStockCostWNumber(dropYear.SelectedItem.Text + month.ToString(), dropGroup.SelectedValue);
+                        else
+                            strWN = bl.GetStockCostWNumber(dropYear.SelectedItem.Text + "0" + month.ToString(), dropGroup.SelectedValue);
+                    }
+                    lblLast_W_Number.Text = Convert.ToDecimal(strWN).ToString("N2");
+
+
+                    //(YYYY/MM/DD起)- (YYYY/MM/DD迄)製成卡金額
+                    lblS_Num.Text = StartDate + "-" + EndDate + "製成卡金額";
+
+                    //(YYYY/MM/DD起)- (YYYY/MM/DD迄)耗損卡金額
+                    lblF_Num.Text = StartDate + "-" + EndDate + "耗損卡金額";
+
+                    //(YYYY/MM/DD起)- (YYYY/MM/DD迄)消耗卡金額
+                    lblUseOutNum.Text = StartDate + "-" + EndDate + "消耗卡金額";
+
+                    //(MM)月初迴轉金額
+                    lblBack_Num.Text = dropMonth.SelectedValue + "月初迴轉金額";
+                    if (month == 0)
+                        lblBack_Number.Text = bl.GetStockUnpayTNumber(Convert.ToString(Convert.ToInt32(dropYear.SelectedItem.Text) - 1) + "12", dropGroup.SelectedValue);
+                    else
+                    {
+                        if (month > 9)
+                            lblBack_Number.Text = bl.GetStockUnpayTNumber(dropYear.SelectedItem.Text + month.ToString(), dropGroup.SelectedValue);
+                        else
+                            lblBack_Number.Text = bl.GetStockUnpayTNumber(dropYear.SelectedItem.Text + "0" + month.ToString(), dropGroup.SelectedValue);
+                    }
+                    lblBack_Number.Text = Convert.ToDecimal(lblBack_Number.Text).ToString("N2");
+                    //if (lblBack_Number.Text.Contains("-"))
+                    //{
+                    //    lblBack_Number.Text = "(" + lblBack_Number.Text + ")";
+                    //    lblBack_Number.ForeColor = System.Drawing.Color.Red;
+                    //}                    
+
+                    //(MM)月出帳付款金額
+                    lblP_Num.Text = dropMonth.SelectedValue + "月出帳付款金額";
+                    month = Convert.ToInt32(dropMonth.SelectedItem.Text);
+                    if (month > 9)
+                        lblP_Number.Text = bl.GetStockUnpayPNumber(dropYear.SelectedItem.Text + month.ToString(), dropGroup.SelectedValue);
+                    else
+                        lblP_Number.Text = bl.GetStockUnpayPNumber(dropYear.SelectedItem.Text + "0" + month.ToString(), dropGroup.SelectedValue);
+                    lblP_Number.Text = Convert.ToDecimal(lblP_Number.Text).ToString("N2");
+
+                    //(MM)月底提列金額
+                    lblT_Num.Text = dropMonth.SelectedValue + "月底提列金額";
+                    if (month > 9)
+                        lblT_Number.Text = bl.GetStockUnpayTNumber(dropYear.SelectedItem.Text + month.ToString(), dropGroup.SelectedValue);
+                    else
+                        lblT_Number.Text = bl.GetStockUnpayTNumber(dropYear.SelectedItem.Text + "0" + month.ToString(), dropGroup.SelectedValue);
+                    lblT_Number.Text = Convert.ToDecimal(lblT_Number.Text).ToString("N2");
+
+                    //(YYYY/MM)帳上庫存成本
+                    lblA_Num.Text = dropYear.SelectedValue + "/" + dropMonth.SelectedItem.Text + "帳上庫存成本";
+                    if (dropGroup.SelectedItem.Text == "晶片信用卡")
+                    {//上月委管庫存成本-本月製成卡金額-本月耗損卡金額+本月初迴轉金額(负值)+本月出帳付款金額+本月底提例金額
+                        lblA_Number.Text = Convert.ToDecimal(Convert.ToDecimal(lblLast_W_Number.Text) - Convert.ToDecimal(lblS_Numbers.Text) - Convert.ToDecimal(lblF_Numbers.Text) - Convert.ToDecimal(lblBack_Number.Text) + Convert.ToDecimal(lblP_Number.Text) + Convert.ToDecimal(lblT_Number.Text)).ToString("N2");
+                    }
+                    else
+                    {//上月委管庫存成本-本月消耗卡金額金額+本月初迴轉金額(负值)+本月出帳付款金額+本月底提例金額
+                        lblA_Number.Text = Convert.ToDecimal(Convert.ToDecimal(lblLast_W_Number.Text) - Convert.ToDecimal(lblUseOutNumber.Text) - Convert.ToDecimal(lblBack_Number.Text) + Convert.ToDecimal(lblP_Number.Text) + Convert.ToDecimal(lblT_Number.Text)).ToString("N2");
+                    }
+
+                    //(YYYY/MM)委管庫存成本
+                    lblW_Num.Text = dropYear.SelectedValue + "/" + dropMonth.SelectedItem.Text + "委管庫存成本";
+
+                    //算
+                    if (lblXH_Numer.Text == "")
+                        lblXH_Numer.Text = "0";
+                    if (lblTZ_Numer.Text == "")
+                        lblTZ_Numer.Text = "";
+                    decimal declblA_Number = Convert.ToDecimal(lblA_Number.Text.Replace(",", "")) - Convert.ToDecimal(lblXH_Numer.Text.Replace(",", "")) - Convert.ToDecimal(lblTZ_Numer.Text.Replace(",", ""));
+                    lblA_Number.Text = declblA_Number.ToString("N2");
+
+                    //差異數
+                    lblD_Num.Text = "差異數";
+                    lblD_Number.Text = Convert.ToDecimal(Convert.ToDecimal(lblA_Number.Text) - Convert.ToDecimal(lblW_Number.Text)).ToString("N2");
+
+                    //銷毀卡
+                    lblXH_Num.Text = StartDate + "-" + EndDate + "銷毀卡金額";
+
+                    //調整卡
+                    lblTZ_Num.Text = StartDate + "-" + EndDate + "調整卡金額";
+
+                    //計算完差異數後，重新綁定GRIDVIEW！
+                    isSecondBing = true;
+                    //gvpbMonthStockCost.BindData();
+                    //lblW_Number.Text = lblA_Number.Text;//更新庫存成本為帳上庫存成本
+                    //lblD_Number.Text  = "0.00";
+
+                    bl1.AddbillCycle(Convert.ToDateTime(StartDate).ToString("yyyyMMdd"), Convert.ToDateTime(EndDate).ToString("yyyyMMdd"), dropYear.SelectedItem.Text + dropMonth.SelectedItem.Text.PadLeft(2, '0'));
+                    //將本月的製成卡金額、耗損卡金額、帳上庫存成本、委管庫存成本新增至庫存成本檔
+                    if (month > 9)
+                        bl.Add(Convert.ToDecimal(lblS_Numbers.Text.Replace(",", "")), Convert.ToDecimal(lblF_Numbers.Text.Replace(",", "")), Convert.ToDecimal(lblA_Number.Text.Replace(",", "")), Convert.ToDecimal(lblW_Number.Text.Replace(",", "")), StartDate, EndDate, dropYear.SelectedItem.Text + month.ToString(), dropGroup.SelectedValue);
+                    else
+                        bl.Add(Convert.ToDecimal(lblS_Numbers.Text.Replace(",", "")), Convert.ToDecimal(lblF_Numbers.Text.Replace(",", "")), Convert.ToDecimal(lblA_Number.Text.Replace(",", "")), Convert.ToDecimal(lblW_Number.Text.Replace(",", "")), StartDate, EndDate, dropYear.SelectedItem.Text + "0" + month.ToString(), dropGroup.SelectedValue);
+
+                    //將負數項轉換為括號加（）
+                    if (lblD_Number.Text.Contains("-"))
+                    {
+                        lblD_Number.Text = "(" + lblD_Number.Text.Substring(1, lblD_Number.Text.Length - 1) + ")";
+                        lblD_Number.ForeColor = System.Drawing.Color.Red;
+                    }
+                    if (lblBack_Number.Text.Contains("-"))
+                    {
+                        lblBack_Number.Text = "(" + lblBack_Number.Text + ")";
+                    }
+                    lblBack_Number.ForeColor = System.Drawing.Color.Red;
+                }
+
+                //ScriptManager.RegisterStartupScript(this, this.GetType(), Guid.NewGuid().ToString(), "doSearch();", true);
+                this.queryResult.Visible = true;
+
+                if (dropFactoryRID.SelectedValue == "")
+                    this.result2.Visible = true;
+                //ScriptManager.RegisterStartupScript(this, this.GetType(), Guid.NewGuid().ToString(), "doSearch1();", true);
+                else
+                    this.result2.Visible = false;
+
+            }
+            else
+            {
+                ShowMessage("查無資料");
+                this.queryResult.Visible = false;
+                this.result2.Visible = false;
+                btnReport.Visible = false;
+            }
+
+        }
+
+    }
+
+    public DataTable CreateTable()
+    {
+        DataTable dtMSC = new DataTable();
+        dtMSC.Columns.Add("版面簡稱", Type.GetType("System.String"));
+        dtMSC.Columns.Add("PERSO 廠", Type.GetType("System.String"));
+        dtMSC.Columns.Add("期初庫存數", Type.GetType("System.String"));
+        dtMSC.Columns.Add("期初未稅單價", Type.GetType("System.String"));
+        dtMSC.Columns.Add("進貨數", Type.GetType("System.String"));
+        dtMSC.Columns.Add("移轉入", Type.GetType("System.String"));
+        dtMSC.Columns.Add("移轉出", Type.GetType("System.String"));
+        dtMSC.Columns.Add("消耗卡數", Type.GetType("System.String"));
+        dtMSC.Columns.Add("製成卡數", Type.GetType("System.String"));
+        dtMSC.Columns.Add("耗損卡數", Type.GetType("System.String"));
+        dtMSC.Columns.Add("銷毀卡數", Type.GetType("System.String"));
+        dtMSC.Columns.Add("調整卡數", Type.GetType("System.String"));
+        dtMSC.Columns.Add("期末庫存數", Type.GetType("System.String"));
+        dtMSC.Columns.Add("未稅單價", Type.GetType("System.String"));
+        dtMSC.Columns.Add("期初庫存金額", Type.GetType("System.String"));
+        dtMSC.Columns.Add("進貨金額", Type.GetType("System.String"));
+        dtMSC.Columns.Add("移轉入金額", Type.GetType("System.String"));
+        dtMSC.Columns.Add("移轉出金額", Type.GetType("System.String"));
+        dtMSC.Columns.Add("消耗卡金額", Type.GetType("System.String"));
+        dtMSC.Columns.Add("製成卡金額", Type.GetType("System.String"));
+        dtMSC.Columns.Add("耗損卡金額", Type.GetType("System.String"));
+        dtMSC.Columns.Add("銷毀卡金額", Type.GetType("System.String"));
+        dtMSC.Columns.Add("調整卡金額", Type.GetType("System.String"));
+        dtMSC.Columns.Add("單價調整金額", Type.GetType("System.String"));
+        dtMSC.Columns.Add("期末庫存未稅金額", Type.GetType("System.String"));
+        dtMSC.Columns.Add("Factory_RID", Type.GetType("System.Int32"));//added by Even.Cheng on 20090115
+        dtMSC.Columns.Add("CardType_RID", Type.GetType("System.Int32"));
+        dtMSC.Columns.Add("Uselog_Rid", Type.GetType("System.String"));
+        dtMSC.Columns.Add("Unit_Price", Type.GetType("System.String"));
+        return dtMSC;
+    }
+    public DataRow CreateDataRow(DataRow drTemp)
+    {
+        DataTable dt = CreateTable();
+        DataRow dr = dt.NewRow();
+        dr["版面簡稱"] = drTemp["版面簡稱"].ToString();
+        dr["PERSO 廠"] = drTemp["PERSO 廠"].ToString();
+        dr["期初庫存數"] = "0";
+        dr["期初未稅單價"] = "0.00";
+        dr["進貨數"] = "0";
+        dr["移轉入"] = "0";
+        dr["移轉出"] = "0";
+        dr["消耗卡數"] = "0";
+        dr["製成卡數"] = "0";
+        dr["耗損卡數"] = "0";
+        dr["銷毀卡數"] = "0";
+        dr["調整卡數"] = "0";
+        dr["期末庫存數"] = "0";
+        dr["未稅單價"] = "0.00";
+        dr["期初庫存金額"] = "0.00";
+        dr["進貨金額"] = "0.00";
+        dr["移轉入金額"] = "0.00";
+        dr["移轉出金額"] = "0.00";
+        dr["消耗卡金額"] = "0.00";
+        dr["製成卡金額"] = "0.00";
+        dr["耗損卡金額"] = "0.00";
+        dr["銷毀卡金額"] = "0.00";
+        dr["調整卡金額"] = "0.00";
+        dr["單價調整金額"] = "0.00";
+        dr["期末庫存未稅金額"] = "0.00";
+        dr["Factory_RID"] = drTemp["Factory_RID"].ToString();
+        dr["CardType_RID"] = drTemp["CardType_RID"].ToString();
+        dr["Uselog_Rid"] = drTemp["Uselog_Rid"].ToString();
+        dr["Unit_Price"] = drTemp["Unit_Price"].ToString();
+
+
+        return dr;
+    }
+
+    #region 列表數據綁定
+    /// <summary>
+    /// GridView數據綁定
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    protected void gvpbMonthStockCost_OnSetDataSource(object sender, ControlLibrary.SetDataSourceEventArgs e)
+    {
+        int intRowCount = 0;
+        string RID = "";
+        string DateFrom = ViewState["DateFrom"].ToString();
+        hidDateFrom.Value = ViewState["DateFrom"].ToString();
+        string DateTo = ViewState["DateTo"].ToString();
+        hidDateTo.Value = ViewState["DateTo"].ToString();
+
+        //RID = dropFactoryRID.SelectedValue;
+        //if (RID == "")
+        //{
+        //    RID = "";
+        DataSet dsF = bl.GetCooperatePersoList();
+        foreach (DataRow dr in dsF.Tables[0].Rows)
+        {
+            RID += dr["RID"].ToString() + ",";
+        }
+        RID = RID.Substring(0, (RID.Length - 1));
+        //}   
+
+        DataSet dstlMonthStockCost = null;
+
+        try
+        {
+            string strDateTo = bl.GetNextWorkDay(DateTo);//取這個日期區間之后的第一個工作日
+            string strDateFrom = bl.GetNextWorkDay(DateFrom);//取這個日期區間之后的第一個工作日
+            dstlMonthStockCost = bl.List(RID, strDateFrom, strDateTo, dropGroup.SelectedValue, e.FirstRow, e.LastRow, e.SortExpression, e.SortDirection, out intRowCount);
+
+            DataTable dtResult = GenResultTable(dstlMonthStockCost);
+
+            if (dtResult != null && dtResult.Rows.Count > 0)//如果查到了資料
+            {
+                e.Table = dtResult;//要綁定的資料表
+                e.RowCount = dtResult.Rows.Count;
+            }
+        }
+        catch (Exception ex)
+        {
+            ExceptionFactory.CreateAlertException(this, ex.Message);
+        }
+
+
+    }
+
+    /// <summary>
+    /// 產生數據方法！
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    private DataTable GenResultTable(DataSet dstlMonthStockCost)
+    {
+
+
+        string RID = "";
+        int number = 0;
+        int i = 0;
+        int j = 0;
+        string DateFrom = ViewState["DateFrom"].ToString();
+        hidDateFrom.Value = ViewState["DateFrom"].ToString();
+        string DateTo = ViewState["DateTo"].ToString();
+        hidDateTo.Value = ViewState["DateTo"].ToString();
+        string beginDateFrom = ViewState["beginDateFrom"].ToString();
+        string beginDateTo = ViewState["beginDateTo"].ToString();
+        //200908IR刪除本月期末金額
+        bl.DELEndPrice(dropYear.SelectedItem.Text, dropMonth.SelectedItem.Text, dropUse.SelectedItem.Value, dropGroup.SelectedItem.Value, dropFactoryRID.SelectedItem.Value);
+
+        //200907IR-合并本帳務周期內同一廠商的相同價格的轉入數量    
+        for (int ii = 0; ii < dstlMonthStockCost.Tables[0].Rows.Count; ii++)
+        {
+            DataRow tempRows1 = dstlMonthStockCost.Tables[0].Rows[ii];
+            DateTime drIncome_Date1 = DateTime.Parse(tempRows1["Income_Date"].ToString().Trim());
+            //20090924IR 合并相同帳務周期的轉入數量 Add by YangKun 2009/09/24 start
+            string BillCycle1 = bl.GetBillCycle(drIncome_Date1.ToString("yyyy/MM/dd"));
+            //20090924IR 合并相同帳務周期的轉入數量 Add by YangKun 2009/09/24 end
+            if (tempRows1["CardType_Move_Rid"].ToString().Trim() != "0" && tempRows1["CardType_Move_Rid"].ToString().Trim() != "")//&& drIncome_Date1 <= DateTime.Parse(DateTo) && drIncome_Date1 >= DateTime.Parse(DateFrom)
+            {
+                DataSet tempds1 = bl.GetFactoryMoveFrom(tempRows1["CardType_Move_Rid"].ToString().Trim());
+                string tempFRID1 = tempds1.Tables[0].Rows[0]["RID"].ToString().Trim();
+                for (int tt = ii + 1; tt < dstlMonthStockCost.Tables[0].Rows.Count; tt++)
+                {
+                    DataRow tempRows2 = dstlMonthStockCost.Tables[0].Rows[tt];
+                    DateTime drIncome_Date2 = DateTime.Parse(tempRows2["Income_Date"].ToString().Trim());
+                    //20090924IR 合并相同帳務周期的轉入數量 Add by YangKun 2009/09/24 start
+                    string BillCycle2 = bl.GetBillCycle(drIncome_Date2.ToString("yyyy/MM/dd"));
+                    if (tempRows2["CardType_Move_Rid"].ToString().Trim() != "0" && tempRows2["CardType_Move_Rid"].ToString().Trim() != "" && BillCycle1 == BillCycle2)//&& drIncome_Date2 <= DateTime.Parse(DateTo) && drIncome_Date2 >= DateTime.Parse(DateFrom)
+                    //20090924IR 合并相同帳務周期的轉入數量 Add by YangKun 2009/09/24 end
+                    {
+                        DataSet tempds2 = bl.GetFactoryMoveFrom(tempRows1["CardType_Move_Rid"].ToString().Trim());
+                        string tempFRID2 = tempds2.Tables[0].Rows[0]["RID"].ToString().Trim();
+                        if (tempFRID1 == tempFRID2 && tempRows1["Uselog_Rid"].ToString().Trim() != tempRows2["Uselog_Rid"].ToString().Trim() && tempRows1["Factory_RID"].ToString().Trim() == tempRows2["Factory_RID"].ToString().Trim() && tempRows1["CardType_RID"].ToString().Trim() == tempRows2["CardType_RID"].ToString().Trim() && tempRows1["Unit_Price"].ToString().Trim() == tempRows2["Unit_Price"].ToString().Trim())
+                        {
+                            dstlMonthStockCost.Tables[0].Rows[ii]["Number"] = Convert.ToString(int.Parse(dstlMonthStockCost.Tables[0].Rows[ii]["Number"].ToString()) + int.Parse(dstlMonthStockCost.Tables[0].Rows[tt]["Number"].ToString()));
+                            if (dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"].ToString().Trim() == "")
+                            {
+                                dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"] = dstlMonthStockCost.Tables[0].Rows[ii]["Uselog_Rid"].ToString() + "," + dstlMonthStockCost.Tables[0].Rows[tt]["Uselog_Rid"].ToString();
+                            }
+                            else
+                            {
+                                dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"] = dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"].ToString() + "," + dstlMonthStockCost.Tables[0].Rows[tt]["Uselog_Rid"].ToString();
+                            }
+                            dstlMonthStockCost.Tables[0].Rows.RemoveAt(tt);
+                            tt--;
+                        }
+
+                    }
+                }
+            }
+        }
+        //合并上個帳務周期內同一廠商的相同價格的轉入數量   
+        //for (int ii = 0; ii < dstlMonthStockCost.Tables[0].Rows.Count; ii++)
+        //{
+        //    DataRow tempRows1 = dstlMonthStockCost.Tables[0].Rows[ii];
+        //    DateTime drIncome_Date1 = DateTime.Parse(tempRows1["Income_Date"].ToString().Trim());
+        //    if (tempRows1["CardType_Move_Rid"].ToString().Trim() != "0" && tempRows1["CardType_Move_Rid"].ToString().Trim() != "" && drIncome_Date1 <= DateTime.Parse(beginDateTo) && drIncome_Date1 >= DateTime.Parse(beginDateFrom))
+        //    {
+        //        DataSet tempds1 = bl.GetFactoryMoveFrom(tempRows1["CardType_Move_Rid"].ToString().Trim());
+        //        string tempFRID1 = tempds1.Tables[0].Rows[0]["RID"].ToString().Trim();
+        //        for (int tt = ii + 1; tt < dstlMonthStockCost.Tables[0].Rows.Count; tt++)
+        //        {
+        //            DataRow tempRows2 = dstlMonthStockCost.Tables[0].Rows[tt];
+        //            DateTime drIncome_Date2 = DateTime.Parse(tempRows2["Income_Date"].ToString().Trim());
+        //            if (tempRows2["CardType_Move_Rid"].ToString().Trim() != "0" && tempRows2["CardType_Move_Rid"].ToString().Trim() != "" && drIncome_Date2 <= DateTime.Parse(beginDateTo) && drIncome_Date2 >= DateTime.Parse(beginDateFrom))
+        //            {
+        //                DataSet tempds2 = bl.GetFactoryMoveFrom(tempRows1["CardType_Move_Rid"].ToString().Trim());
+        //                string tempFRID2 = tempds2.Tables[0].Rows[0]["RID"].ToString().Trim();
+        //                if (tempFRID1 == tempFRID2 && tempRows1["Uselog_Rid"].ToString().Trim() != tempRows2["Uselog_Rid"].ToString().Trim() && tempRows1["Factory_RID"].ToString().Trim() == tempRows2["Factory_RID"].ToString().Trim() && tempRows1["CardType_RID"].ToString().Trim() == tempRows2["CardType_RID"].ToString().Trim() && tempRows1["Unit_Price"].ToString().Trim() == tempRows2["Unit_Price"].ToString().Trim())
+        //                {
+        //                    dstlMonthStockCost.Tables[0].Rows[ii]["Number"] = Convert.ToString(int.Parse(dstlMonthStockCost.Tables[0].Rows[ii]["Number"].ToString()) + int.Parse(dstlMonthStockCost.Tables[0].Rows[tt]["Number"].ToString()));
+        //                    if (dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"].ToString().Trim() == "")
+        //                    {
+        //                        dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"] = dstlMonthStockCost.Tables[0].Rows[ii]["Uselog_Rid"].ToString() + "," + dstlMonthStockCost.Tables[0].Rows[tt]["Uselog_Rid"].ToString();
+        //                    }
+        //                    else
+        //                    {
+        //                        dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"] = dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"].ToString() + "," + dstlMonthStockCost.Tables[0].Rows[tt]["Uselog_Rid"].ToString();
+        //                    }
+        //                    dstlMonthStockCost.Tables[0].Rows.RemoveAt(tt);
+        //                    tt--;
+        //                }
+
+        //            }
+        //        }
+        //    }
+        //}
+        //合并上個帳務周期前同一廠商的相同價格的轉入數量
+        //獲取上個帳務起迄日
+
+        //for (int ii = 0; ii < dstlMonthStockCost.Tables[0].Rows.Count; ii++)
+        //{
+        //    DataRow tempRows1 = dstlMonthStockCost.Tables[0].Rows[ii];
+        //    DateTime drIncome_Date1 = DateTime.Parse(tempRows1["Income_Date"].ToString().Trim());
+        //    if (tempRows1["CardType_Move_Rid"].ToString().Trim() != "0" && tempRows1["CardType_Move_Rid"].ToString().Trim() != "" && drIncome_Date1 < DateTime.Parse(beginDateFrom))
+        //    {
+        //        DataSet tempds1 = bl.GetFactoryMoveFrom(tempRows1["CardType_Move_Rid"].ToString().Trim());
+        //        string tempFRID1 = tempds1.Tables[0].Rows[0]["RID"].ToString().Trim();
+        //        for (int tt = ii + 1; tt < dstlMonthStockCost.Tables[0].Rows.Count; tt++)
+        //        {
+        //            DataRow tempRows2 = dstlMonthStockCost.Tables[0].Rows[tt];
+        //            DateTime drIncome_Date2 = DateTime.Parse(tempRows2["Income_Date"].ToString().Trim());
+        //            if (tempRows2["CardType_Move_Rid"].ToString().Trim() != "0" && tempRows2["CardType_Move_Rid"].ToString().Trim() != "" && drIncome_Date2 < DateTime.Parse(beginDateFrom))
+        //            {
+        //                DataSet tempds2 = bl.GetFactoryMoveFrom(tempRows1["CardType_Move_Rid"].ToString().Trim());
+        //                string tempFRID2 = tempds2.Tables[0].Rows[0]["RID"].ToString().Trim();
+        //                if (tempFRID1 == tempFRID2 && tempRows1["Uselog_Rid"].ToString().Trim() != tempRows2["Uselog_Rid"].ToString().Trim() && tempRows1["Factory_RID"].ToString().Trim() == tempRows2["Factory_RID"].ToString().Trim() && tempRows1["CardType_RID"].ToString().Trim() == tempRows2["CardType_RID"].ToString().Trim() && tempRows1["Unit_Price"].ToString().Trim() == tempRows2["Unit_Price"].ToString().Trim())
+        //                {
+        //                    dstlMonthStockCost.Tables[0].Rows[ii]["Number"] = Convert.ToString(int.Parse(dstlMonthStockCost.Tables[0].Rows[ii]["Number"].ToString()) + int.Parse(dstlMonthStockCost.Tables[0].Rows[tt]["Number"].ToString()));
+        //                    if (dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"].ToString().Trim() == "")
+        //                    {
+        //                        dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"] = dstlMonthStockCost.Tables[0].Rows[ii]["Uselog_Rid"].ToString() + "," + dstlMonthStockCost.Tables[0].Rows[tt]["Uselog_Rid"].ToString();
+        //                    }
+        //                    else
+        //                    {
+        //                        dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"] = dstlMonthStockCost.Tables[0].Rows[ii]["log_rid"].ToString() + "," + dstlMonthStockCost.Tables[0].Rows[tt]["Uselog_Rid"].ToString();
+        //                    }
+        //                    dstlMonthStockCost.Tables[0].Rows.RemoveAt(tt);
+        //                    tt--;
+        //                }
+
+        //            }
+        //        }
+        //    }
+        //}
+
+
+
+
+        DataRow[] drowStockCost = dstlMonthStockCost.Tables[0].Select("", "factory_rid,cardtype_rid,income_date");
+        //RID = dropFactoryRID.SelectedValue;
+        //if (RID == "")
+        //{
+        //    RID = "";
+        DataSet dsF = bl.GetCooperatePersoList();
+        foreach (DataRow dr in dsF.Tables[0].Rows)
+        {
+            RID += dr["RID"].ToString() + ",";
+        }
+        RID = RID.Substring(0, (RID.Length - 1));
+        //}   
+
+
+        try
+        {
+            string strDateTo = bl.GetNextWorkDay(DateTo);//取這個日期區間之后的第一個工作日
+            //dstlMonthStockCost = bl.List(RID, DateFrom, strDateTo, dropGroup.SelectedValue, e.FirstRow, e.LastRow, e.SortExpression, e.SortDirection, out intRowCount);
+
+            //取得 各個（Perso厰+卡種）在選定日期區間之内的 各種狀況的卡種的數量
+            DataSet CardNumber = bl.GetCardNumber(RID, DateFrom, DateTo, dropGroup.SelectedValue);
+            DataTable dtbl = new DataTable();
+
+            DataRow dr3 = null;
+            dtbl.Columns.Add("Perso_Factory_RID", Type.GetType("System.String"));
+            dtbl.Columns.Add("CardType_RID", Type.GetType("System.String"));
+            dtbl.Columns.Add("消耗卡數", Type.GetType("System.String"));
+            dtbl.Columns.Add("製成卡數", Type.GetType("System.String"));
+            dtbl.Columns.Add("耗損卡數", Type.GetType("System.String"));
+            dtbl.Columns.Add("銷毀卡數", Type.GetType("System.String"));
+            dtbl.Columns.Add("調整卡數", Type.GetType("System.String"));
+            dtbl.Columns.Add("移轉出", Type.GetType("System.String"));
+            foreach (DataRow drow in CardNumber.Tables[0].Rows)
+            {
+                if (dtbl.Select("Perso_Factory_RID='" + drow["Perso_Factory_RID"].ToString().Trim() + "' and CardType_RID='" + drow["CardType_RID"].ToString().Trim() + "'").Length > 0)
+                {
+                    continue;
+                }
+                else
+                {
+                    dr3 = dtbl.NewRow();
+                    dr3["Perso_Factory_RID"] = drow["Perso_Factory_RID"].ToString().Trim();
+                    dr3["CardType_RID"] = drow["CardType_RID"].ToString().Trim();
+                    dtbl.Rows.Add(dr3);
+                }
+            }
+            foreach (DataRow drMonthStockCost in drowStockCost)
+            {
+                if (drMonthStockCost["CardType_Move_RID"].ToString().Trim() != "0")
+                {
+                    DataSet ds1 = bl.GetFactoryMoveFrom(drMonthStockCost["CardType_Move_RID"].ToString().Trim());
+                    if (ds1.Tables[0].Rows.Count > 0)
+                    {
+                        string FRID = ds1.Tables[0].Rows[0]["RID"].ToString().Trim();
+                        if (dtbl.Select("Perso_Factory_RID='" + FRID + "' and CardType_RID='" + drMonthStockCost["CardType_RID"].ToString().Trim() + "'").Length > 0)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            dr3 = dtbl.NewRow();
+                            dr3["Perso_Factory_RID"] = FRID;
+                            dr3["CardType_RID"] = drMonthStockCost["CardType_RID"].ToString().Trim();
+                            dtbl.Rows.Add(dr3);
+                        }
+                    }
+                }
+            }
+            //200907IR 按批次算出 的數量
+            DataTable dtmo = new DataTable();
+            DataRow drm3 = null;
+            dtmo.Columns.Add("Perso_Factory_RID", Type.GetType("System.String"));
+            dtmo.Columns.Add("CardType_RID", Type.GetType("System.String"));
+            dtmo.Columns.Add("MoveNum", Type.GetType("System.String"));
+            dtmo.Columns.Add("MoveUnit_Price", Type.GetType("System.String"));
+            dtmo.Columns.Add("MoveDate", Type.GetType("System.DateTime"));
+
+            foreach (DataRow drMonthStockCost in drowStockCost)
+            {
+                DateTime drIncome_Date = DateTime.Parse(drMonthStockCost["Income_Date"].ToString().Trim());
+                if (drMonthStockCost["CardType_Move_RID"].ToString().Trim() != "0" && drIncome_Date <= DateTime.Parse(DateTo) && drIncome_Date >= DateTime.Parse(DateFrom))
+                {
+                    DataSet ds1 = bl.GetFactoryMoveFrom(drMonthStockCost["CardType_Move_RID"].ToString().Trim());
+                    if (ds1.Tables[0].Rows.Count > 0)
+                    {
+                        string FRID = ds1.Tables[0].Rows[0]["RID"].ToString().Trim();
+                        if (dtmo.Select("Perso_Factory_RID='" + FRID + "' and CardType_RID='" + drMonthStockCost["CardType_RID"].ToString().Trim() + "' and MoveUnit_Price='" + drMonthStockCost["Unit_Price"].ToString().Trim() + "'").Length > 0)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            drm3 = dtmo.NewRow();
+                            drm3["Perso_Factory_RID"] = FRID;
+                            drm3["CardType_RID"] = drMonthStockCost["CardType_RID"].ToString().Trim();
+                            drm3["MoveUnit_Price"] = drMonthStockCost["Unit_Price"].ToString().Trim();
+                            drm3["MoveDate"] = drIncome_Date;
+                            dtmo.Rows.Add(drm3);
+                        }
+                    }
+                }
+            }
+            foreach (DataRow dr1 in dtmo.Rows)
+            {
+                //移轉出
+                dr1["MoveNum"] = "0";
+                foreach (DataRow drMonthStockCost in drowStockCost)
+                {
+
+                    DateTime drIncome_Date3 = DateTime.Parse(drMonthStockCost["Income_Date"].ToString().Trim());
+                    if (drMonthStockCost["CardType_Move_RID"].ToString().Trim() != "0" && drMonthStockCost["CardType_Move_RID"].ToString().Trim() != "" && drIncome_Date3 <= DateTime.Parse(DateTo) && drIncome_Date3 >= DateTime.Parse(DateFrom))
+                    {
+                        DataSet ds1 = bl.GetFactoryMoveFrom(drMonthStockCost["CardType_Move_RID"].ToString().Trim());
+                        if (ds1.Tables[0].Rows.Count > 0)
+                        {
+                            string FRID = ds1.Tables[0].Rows[0]["RID"].ToString().Trim();
+                            string strCardType_RID = ds1.Tables[0].Rows[0]["CardType_RID"].ToString().Trim();
+                            if (FRID == dr1["Perso_Factory_RID"].ToString().Trim() && strCardType_RID == dr1["CardType_RID"].ToString().Trim() && drMonthStockCost["Unit_Price"].ToString().Trim() == dr1["MoveUnit_Price"].ToString().Trim())
+                            {
+                                if (dr1["MoveNum"].ToString().Trim() == "")
+                                {
+                                    dr1["MoveNum"] = "0";
+                                }
+                                dr1["MoveNum"] = Convert.ToString(Convert.ToInt32(drMonthStockCost["Number"].ToString().Trim()) + Convert.ToInt32(dr1["MoveNum"].ToString().Trim()));
+                            }
+                        }
+                        else
+                        {
+                            dr1["MoveNum"] = "0";
+                        }
+                    }
+                }
+
+            }
+            foreach (DataRow dr1 in dtbl.Rows)
+            {
+                /* deleted on 20090114
+                if (dropGroup.SelectedItem.Text != "晶片信用卡")
+                {
+                    DataSet dset = bl.GetExpression(GlobalString.Expression.Used_RID.ToString());//消耗卡數："2"
+                    number = 0;
+                    for (i = 0; i < dset.Tables[0].Rows.Count; i++)
+                    {
+                        if (CardNumber.Tables[0].Select("Status_RID=" + dset.Tables[0].Rows[i]["Type_RID"].ToString() + " and Perso_Factory_RID=" + dr1["Perso_Factory_RID"].ToString() + " and CardType_RID=" + dr1["CardType_RID"].ToString()).Length > 0)
+                            j = Convert.ToInt32(CardNumber.Tables[0].Select("Status_RID=" + dset.Tables[0].Rows[i]["Type_RID"].ToString() + " and Perso_Factory_RID=" + dr1["Perso_Factory_RID"].ToString() + " and CardType_RID=" + dr1["CardType_RID"].ToString())[0]["Sum"].ToString());
+                        else
+                            j = 0;
+                        if (dset.Tables[0].Rows[i]["Operate"].ToString() == "+")
+                            number += j;
+                        if (dset.Tables[0].Rows[i]["Operate"].ToString() == "-")
+                            number -= j;
+                    }                    
+                    dr1["消耗卡數"] = number.ToString();
+                    dr1["製成卡數"] = "0";
+                    dr1["耗損卡數"] = "0";
+                }
+                else
+                {*/
+                DataSet dset = bl.GetExpression(GlobalString.Expression.Made_RID.ToString());//製成卡數："1"
+                number = 0;
+                for (i = 0; i < dset.Tables[0].Rows.Count; i++)
+                {
+                    if (CardNumber.Tables[0].Select("Status_RID='" + dset.Tables[0].Rows[i]["Type_RID"].ToString() + "' and Perso_Factory_RID='" + dr1["Perso_Factory_RID"].ToString() + "' and CardType_RID='" + dr1["CardType_RID"].ToString() + "'").Length > 0)
+                        j = Convert.ToInt32(CardNumber.Tables[0].Select("Status_RID='" + dset.Tables[0].Rows[i]["Type_RID"].ToString() + "' and Perso_Factory_RID='" + dr1["Perso_Factory_RID"].ToString() + "' and CardType_RID='" + dr1["CardType_RID"].ToString() + "'")[0]["Sum"].ToString());
+                    else
+                        j = 0;
+                    if (dset.Tables[0].Rows[i]["Operate"].ToString() == "+")
+                        number += j;
+                    if (dset.Tables[0].Rows[i]["Operate"].ToString() == "-")
+                        number -= j;
+                }
+                dr1["製成卡數"] = number.ToString();
+                DataSet dset1 = bl.GetExpression(GlobalString.Expression.Waste_RID.ToString());//耗損卡數："3"
+                number = 0;
+                for (i = 0; i < dset1.Tables[0].Rows.Count; i++)
+                {
+                    if (CardNumber.Tables[0].Select("Status_RID='" + dset1.Tables[0].Rows[i]["Type_RID"].ToString() + "' and Perso_Factory_RID='" + dr1["Perso_Factory_RID"].ToString() + "' and CardType_RID='" + dr1["CardType_RID"].ToString() + "'").Length > 0)
+                        j = Convert.ToInt32(CardNumber.Tables[0].Select("Status_RID='" + dset1.Tables[0].Rows[i]["Type_RID"].ToString() + "' and Perso_Factory_RID='" + dr1["Perso_Factory_RID"].ToString() + "' and CardType_RID='" + dr1["CardType_RID"].ToString() + "'")[0]["Sum"].ToString());
+                    else
+                        j = 0;
+                    if (dset1.Tables[0].Rows[i]["Operate"].ToString() == "+")
+                        number += j;
+                    if (dset1.Tables[0].Rows[i]["Operate"].ToString() == "-")
+                        number -= j;
+                }
+                dr1["耗損卡數"] = number.ToString();
+                dr1["消耗卡數"] = Convert.ToInt32(dr1["製成卡數"]) + Convert.ToInt32(dr1["耗損卡數"]);
+                //}
+
+                if (CardNumber.Tables[0].Select("Status_Code='13' and Perso_Factory_RID='" + dr1["Perso_Factory_RID"].ToString() + "' and CardType_RID='" + dr1["CardType_RID"].ToString() + "'").Length > 0)
+                    dr1["調整卡數"] = Convert.ToInt32(CardNumber.Tables[0].Select("Status_Code='13' and Perso_Factory_RID='" + dr1["Perso_Factory_RID"].ToString() + "' and CardType_RID='" + dr1["CardType_RID"].ToString() + "'")[0]["Sum"].ToString());
+                else
+                    dr1["調整卡數"] = "0";
+
+                if (CardNumber.Tables[0].Select("Status_Code='12' and Perso_Factory_RID='" + dr1["Perso_Factory_RID"].ToString() + "' and CardType_RID='" + dr1["CardType_RID"].ToString() + "'").Length > 0)
+                    dr1["銷毀卡數"] = Convert.ToInt32(CardNumber.Tables[0].Select("Status_Code='12' and Perso_Factory_RID='" + dr1["Perso_Factory_RID"].ToString() + "' and CardType_RID='" + dr1["CardType_RID"].ToString() + "'")[0]["Sum"].ToString());
+                else
+                    dr1["銷毀卡數"] = "0";
+
+                //移轉出
+                //dr1["移轉出"] = "0";
+                //foreach (DataRow drMonthStockCost in drowStockCost)
+                //{
+                //    if (drMonthStockCost["CardType_Move_RID"].ToString().Trim() != "0" && drMonthStockCost["CardType_Move_RID"].ToString().Trim() != "")
+                //    {
+                //        DataSet ds1 = bl.GetFactoryMoveFrom(drMonthStockCost["CardType_Move_RID"].ToString().Trim());
+                //        if (ds1.Tables[0].Rows.Count > 0)
+                //        {
+                //            string FRID = ds1.Tables[0].Rows[0]["RID"].ToString().Trim();
+                //            string strCardType_RID = ds1.Tables[0].Rows[0]["CardType_RID"].ToString().Trim();
+                //            if (FRID == dr1["Perso_Factory_RID"].ToString().Trim() && strCardType_RID == dr1["CardType_RID"].ToString().Trim())
+                //            {
+                //                if (dr1["移轉出"].ToString().Trim() == "")
+                //                {
+                //                    dr1["移轉出"] = "0";
+                //                }
+                //                dr1["移轉出"] = Convert.ToString(Convert.ToInt32(drMonthStockCost["Number"].ToString().Trim()) + Convert.ToInt32(dr1["移轉出"].ToString().Trim()));
+                //            }
+                //        }
+                //        else
+                //        {
+                //            dr1["移轉出"] = "0";
+                //        }
+                //    }
+                //}
+            }
+
+            DataTable dtbltemp = dtbl.Copy();
+            DataTable dtmotemp = dtmo.Copy();
+            DataTable dtMSC = this.CreateTable();
+            DataRow drMSC = null;
+
+            foreach (DataRow drMonthStockCost in drowStockCost)
+            {
+                DataRow dr = null;
+                DataRow drmo = null;
+
+                drMSC = dtMSC.NewRow();
+                //版面簡稱
+                drMSC["版面簡稱"] = drMonthStockCost["Name"].ToString();
+
+                //PERSO 廠
+                drMSC["PERSO 廠"] = drMonthStockCost["Factory_ShortName_CN"].ToString();
+                drMSC["Factory_RID"] = drMonthStockCost["Factory_RID"].ToString();
+                drMSC["CardType_RID"] = drMonthStockCost["CardType_RID"].ToString();
+
+                //進貨作業RID=Operate_RID；
+                string strOperate_RID = drMonthStockCost["Operate_RID"].ToString();
+                //進貨作業類別=Operate_Type；
+                string strOperate_Type = drMonthStockCost["Operate_Type"].ToString();
+                //移轉單號=CardType_Move_RID；
+                string strCardType_Move_RID = drMonthStockCost["CardType_Move_RID"].ToString();
+
+                //add by Jacky on 20090411!
+                string strUselog_Rid = drMonthStockCost["uselog_rid"].ToString();
+                //轉入轉出合并后晶片規格變化檔RID
+                string strlog_rid = drMonthStockCost["log_rid"].ToString();
+                drMSC["Uselog_Rid"] = strUselog_Rid;
+                drMSC["Unit_Price"] = drMonthStockCost["Unit_Price"].ToString();
+
+                //期初的日結日期：
+                string Date_Time = "";
+                //Date_Time = bl.GetLastWorkDay(DateFrom);//該日期區間的前一個工作日
+                Date_Time = bl.GetFirstWorkDay(DateFrom, DateTo);//該日期區間内的第一個工作日
+
+                string strIncomeDate = Convert.ToDateTime(drMonthStockCost["Income_Date"].ToString()).ToString("yyyy/MM/dd");
+                string strActualDate = GlobalStringManager.ActualDate;
+                string strUnit_Price = "0.0";
+                if (drMonthStockCost["Unit_Price"].ToString().Trim() != "")
+                {
+                    strUnit_Price = drMonthStockCost["Unit_Price"].ToString().Trim();
+                }
+if  (drMonthStockCost["CardType_RID"].ToString().Equals("359")){
+    string aaa="";
+}
+                //期初庫存
+                DataSet UsableNumber = null;
+                if (strlog_rid.ToString().Trim() != "")
+                {
+                    strUselog_Rid = strlog_rid;
+                    drMSC["Uselog_Rid"] = strUselog_Rid;
+                    UsableNumber = bl.GetUsableNumberMove(drMonthStockCost["Factory_RID"].ToString(), drMonthStockCost["CardType_RID"].ToString(), Date_Time, strUselog_Rid);
+                }
+                else
+                {
+                    UsableNumber = bl.GetUsableNumber(strOperate_RID, strOperate_Type, strCardType_Move_RID, drMonthStockCost["Factory_RID"].ToString(), drMonthStockCost["CardType_RID"].ToString(), Date_Time, strUselog_Rid);
+                }
+                if (UsableNumber.Tables[0].Rows.Count > 0)
+                {
+                    //期初庫存數     
+                    if (UsableNumber.Tables[0].Rows[0]["Usable_Number_Initial"].ToString().Trim() != "")
+                    {
+                        drMSC["期初庫存數"] = UsableNumber.Tables[0].Rows[0]["Usable_Number_Initial"].ToString().Trim();
+                    }
+                    else
+                    {
+                        drMSC["期初庫存數"] = "0";
+                    }
+
+                    //string Operate_RID_Initial = UsableNumber.Tables[0].Rows[0]["Operate_RID_Initial"].ToString();
+                    //string Operate_Type_Initial = UsableNumber.Tables[0].Rows[0]["Operate_Type_Initial"].ToString();
+
+                    //期初未稅單價
+                    if (strIncomeDate.CompareTo(strActualDate) < 0 || strOperate_RID == "0")
+                    {
+                        drMSC["期初未稅單價"] = strUnit_Price;
+                    }
+                    else
+                    {
+                        if (!StringUtil.IsEmpty(strOperate_Type))
+                        {
+                            DataSet UnitPrice = bl.GetUnitPrice(strOperate_RID, strOperate_Type, Date_Time);
+                            if (UnitPrice.Tables[0].Rows.Count > 0)
+                            {
+                                string strReal_Ask_Number = UnitPrice.Tables[0].Rows[0]["Real_Ask_Number"].ToString().Trim();
+                                decimal dReal_Ask_Number = 0;
+                                if (strReal_Ask_Number != "")
+                                {
+                                    dReal_Ask_Number = Convert.ToDecimal(strReal_Ask_Number);
+                                }
+
+                                if (dReal_Ask_Number == 0)//未請款
+                                {
+
+                                    if (dropGroup.SelectedItem.Text == "現金卡" || dropGroup.SelectedItem.Text == "晶片金融卡")
+                                    {
+                                        if (UnitPrice.Tables[0].Rows[0]["Unit_Price_Order"].ToString().Trim() != "")
+                                        {
+                                            drMSC["期初未稅單價"] = UnitPrice.Tables[0].Rows[0]["Unit_Price_Order"].ToString().Trim();
+                                        }
+                                        else
+                                        {
+                                            drMSC["期初未稅單價"] = "0.0000";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (UnitPrice.Tables[0].Rows[0]["Unit_Price_Order"].ToString().Trim() != "")
+                                        {
+                                            decimal unit_price = Convert.ToDecimal(UnitPrice.Tables[0].Rows[0]["Unit_Price_Order"]) / 1.05M;
+                                            drMSC["期初未稅單價"] = unit_price.ToString("N4");
+                                        }
+                                        else
+                                        {
+                                            drMSC["期初未稅單價"] = "0.0000";
+                                        }
+                                    }
+                                }
+                                else//已請款
+                                {
+                                    if (dropGroup.SelectedItem.Text == "現金卡" || dropGroup.SelectedItem.Text == "晶片金融卡")
+                                    {
+                                        if (UnitPrice.Tables[0].Rows[0]["Unit_Price"].ToString().Trim() != "")
+                                        {
+                                            drMSC["期初未稅單價"] = UnitPrice.Tables[0].Rows[0]["Unit_Price"].ToString().Trim();
+                                        }
+                                        else
+                                        {
+                                            drMSC["期初未稅單價"] = "0.0000";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (UnitPrice.Tables[0].Rows[0]["Unit_Price_No"].ToString().Trim() != "")
+                                        {
+                                            drMSC["期初未稅單價"] = UnitPrice.Tables[0].Rows[0]["Unit_Price_No"].ToString().Trim();
+                                        }
+                                        else
+                                        {
+                                            drMSC["期初未稅單價"] = "0.0000";
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                drMSC["期初未稅單價"] = "0.0000";
+                            }
+                        }
+                        else
+                        {
+                            drMSC["期初未稅單價"] = "0.0000";
+                        }
+                    }
+                }
+                else
+                {
+                    drMSC["期初庫存數"] = "0";
+                    drMSC["期初未稅單價"] = "0.0000";
+                }
+
+                //進貨數，移轉入  
+                //max 新增加先取得這段區間的退貨數量 DEPOSITORY_CANCEL 
+                 DataSet CancelNumber = null;
+                 String strCancelNumber = "0";
+                 CancelNumber = bl.GetCancelNumber(strOperate_RID, strOperate_Type, strCardType_Move_RID, drMonthStockCost["Factory_RID"].ToString(), drMonthStockCost["CardType_RID"].ToString(), Date_Time, strUselog_Rid, DateTo, DateFrom);
+                //期初庫存數     
+                if (CancelNumber.Tables[0].Rows.Count != 0)
+                {
+                    strCancelNumber=CancelNumber.Tables[0].Rows[0]["CancelNumber"].ToString().Trim();
+                }
+
+                //加入判斷，如果入庫日期小於上線日，則不認為是進貨或是轉移入！
+                string strIncome_Date = Convert.ToDateTime(drMonthStockCost["Income_Date"].ToString().Trim()).ToString("yyyy/MM/dd");
+                if (DateFrom.CompareTo(strIncome_Date) <= 0 && strIncome_Date.CompareTo(DateTo) <= 0 && strIncomeDate.CompareTo(strActualDate) >= 0)
+                {//本期進貨或移轉
+                    if (drMonthStockCost["CardType_Move_RID"].ToString().Trim() != "0" && drMonthStockCost["CardType_Move_RID"].ToString().Trim() != "")
+                    {
+                        drMSC["進貨數"] = "0";
+                        drMSC["移轉入"] = drMonthStockCost["Number"].ToString();
+                    }
+                    else
+                    {
+                        drMSC["進貨數"] = drMonthStockCost["Number"].ToString();
+                        drMSC["移轉入"] = "0";
+                    }
+                }
+                else
+                {
+                    drMSC["進貨數"] = "0";
+                    drMSC["移轉入"] = "0";
+                }
+                //max 增加，如果此筆不是移轉，要對跟當月有退貨的一起做加總
+                //2011/11/22 發現同月份的進貨與退貨會先先相減，所以反而在特別減退貨就有問題-
+                //所以要判斷其出庫存數如果不是零，代表進貨與退貨不在同個作帳月份，且有退貨~才要特別去扣退貨
+                if (!drMSC["期初庫存數"].Equals("0"))
+                {
+                   drMSC["進貨數"] = Convert.ToInt32(drMSC["進貨數"].ToString()) - Convert.ToInt32(strCancelNumber);
+                }
+
+                //製成卡數,耗損卡數,消耗卡數,銷毀卡數,調整卡數以及移轉出卡數.
+                if (dtbl.Select("Perso_Factory_RID='" + drMonthStockCost["Factory_RID"].ToString() + "' and CardType_RID='" + drMonthStockCost["CardType_RID"].ToString() + "'").Length > 0)
+                {
+                    dr = dtbl.Select("Perso_Factory_RID='" + drMonthStockCost["Factory_RID"].ToString() + "' and CardType_RID='" + drMonthStockCost["CardType_RID"].ToString() + "'")[0];
+                    number = Convert.ToInt32(drMSC["期初庫存數"].ToString()) + Convert.ToInt32(drMSC["進貨數"].ToString()) + Convert.ToInt32(drMSC["移轉入"].ToString());
+                    //if (number > 0 && dr["移轉出"].ToString() != "" && Convert.ToInt32(dr["移轉出"].ToString()) > 0)
+                    //{
+                    //    drMSC["移轉出"] = bl.GetCardCount(number, dr, "移轉出").ToString();
+                    //    number -= Convert.ToInt32(drMSC["移轉出"]);
+                    //}
+                    //else
+                    //{
+                    //    drMSC["移轉出"] = "0";
+                    //}
+
+                    // edit by Ian Huang 帳務管理模組/卡片成本/-月庫存成本查詢、庫存成本查詢 start
+
+                    DateTime tCheck = DateTime.Parse(DateTo).AddDays(-10);
+                    int iMOCheck = -1;
+                    if (dtmo.Select("Perso_Factory_RID='" + drMonthStockCost["Factory_RID"].ToString() + "' and CardType_RID='" + drMonthStockCost["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMonthStockCost["Unit_Price"].ToString().Trim() + "'").Length > 0)
+                    {
+                        DateTime tMOCheck = (DateTime)dtmo.Select("Perso_Factory_RID='" + drMonthStockCost["Factory_RID"].ToString() + "' and CardType_RID='" + drMonthStockCost["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMonthStockCost["Unit_Price"].ToString().Trim() + "'")[0]["MoveDate"];
+                        iMOCheck = tMOCheck.CompareTo(tCheck);
+                    }
+
+
+                    if (-1 == iMOCheck)
+                    {
+                        //200907IR-移轉出與移轉入金額不符
+                        if (dtmo.Select("Perso_Factory_RID='" + drMonthStockCost["Factory_RID"].ToString() + "' and CardType_RID='" + drMonthStockCost["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMonthStockCost["Unit_Price"].ToString().Trim() + "'").Length > 0)
+                        {
+                            drmo = dtmo.Select("Perso_Factory_RID='" + drMonthStockCost["Factory_RID"].ToString() + "' and CardType_RID='" + drMonthStockCost["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMonthStockCost["Unit_Price"].ToString().Trim() + "'")[0];
+                            if (number > 0 && drmo["MoveNum"].ToString() != "" && Convert.ToInt32(drmo["MoveNum"].ToString()) > 0)
+                            {
+                                drMSC["移轉出"] = bl.GetCardCount(number, drmo, "MoveNum").ToString();
+                                number -= Convert.ToInt32(drMSC["移轉出"]);
+                            }
+                            else
+                            {
+                                drMSC["移轉出"] = "0";
+                            }
+                        }
+                        else
+                        {
+                            drMSC["移轉出"] = "0";
+                        }
+                    }
+
+
+                    //if (number > 0 && dr["調整卡數"].ToString() != "" && Convert.ToInt32(dr["調整卡數"].ToString()) > 0)
+                    if (number > 0 && dr["調整卡數"].ToString() != "")
+                    {
+                        drMSC["調整卡數"] = bl.GetCardCount(number, dr, "調整卡數").ToString();
+                        number -= Convert.ToInt32(drMSC["調整卡數"]);
+                    }
+                    else
+                    {
+                        drMSC["調整卡數"] = "0";
+                    }
+
+                    if (number > 0 && dr["銷毀卡數"].ToString() != "" && Convert.ToInt32(dr["銷毀卡數"].ToString()) > 0)
+                    {
+                        drMSC["銷毀卡數"] = bl.GetCardCount(number, dr, "銷毀卡數").ToString();
+                        number -= Convert.ToInt32(drMSC["銷毀卡數"]);
+                    }
+                    else
+                    {
+                        drMSC["銷毀卡數"] = "0";
+                    }
+
+                    if (dropGroup.SelectedItem.Text == "晶片信用卡")
+                    {
+                        drMSC["消耗卡數"] = "0";
+                        if (number > 0 && dr["耗損卡數"].ToString() != "" && Convert.ToInt32(dr["耗損卡數"].ToString()) > 0)
+                        {
+                            drMSC["耗損卡數"] = bl.GetCardCount(number, dr, "耗損卡數").ToString();
+                            number -= Convert.ToInt32(drMSC["耗損卡數"]);
+                        }
+                        else
+                        {
+                            drMSC["耗損卡數"] = "0";
+                        }
+
+                        if (number > 0 && dr["製成卡數"].ToString() != "" && Convert.ToInt32(dr["製成卡數"].ToString()) > 0)
+                        {
+                            drMSC["製成卡數"] = bl.GetCardCount(number, dr, "製成卡數").ToString();
+                            number -= Convert.ToInt32(drMSC["製成卡數"]);
+                        }
+                        else
+                        {
+                            drMSC["製成卡數"] = "0";
+                        }
+
+                    }
+                    else
+                    {
+                        drMSC["製成卡數"] = "0";
+                        drMSC["耗損卡數"] = "0";
+                        if (number > 0 && dr["消耗卡數"].ToString() != "" && Convert.ToInt32(dr["消耗卡數"].ToString()) > 0)
+                        {
+                            drMSC["消耗卡數"] = bl.GetCardCount(number, dr, "消耗卡數").ToString();
+                            number -= Convert.ToInt32(drMSC["消耗卡數"]);
+                        }
+                        else
+                        {
+                            drMSC["消耗卡數"] = "0";
+                        }
+                    }
+
+                    if (-1 != iMOCheck)
+                    {
+                        //200907IR-移轉出與移轉入金額不符
+                        if (dtmo.Select("Perso_Factory_RID='" + drMonthStockCost["Factory_RID"].ToString() + "' and CardType_RID='" + drMonthStockCost["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMonthStockCost["Unit_Price"].ToString().Trim() + "'").Length > 0)
+                        {
+                            drmo = dtmo.Select("Perso_Factory_RID='" + drMonthStockCost["Factory_RID"].ToString() + "' and CardType_RID='" + drMonthStockCost["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMonthStockCost["Unit_Price"].ToString().Trim() + "'")[0];
+                            if (number > 0 && drmo["MoveNum"].ToString() != "" && Convert.ToInt32(drmo["MoveNum"].ToString()) > 0)
+                            {
+                                drMSC["移轉出"] = bl.GetCardCount(number, drmo, "MoveNum").ToString();
+                                number -= Convert.ToInt32(drMSC["移轉出"]);
+                            }
+                            else
+                            {
+                                drMSC["移轉出"] = "0";
+                            }
+                        }
+                        else
+                        {
+                            drMSC["移轉出"] = "0";
+                        }
+                    }
+
+
+                }
+                else
+                {
+                    drMSC["移轉出"] = "0";
+                    drMSC["消耗卡數"] = "0";
+                    drMSC["製成卡數"] = "0";
+                    drMSC["耗損卡數"] = "0";
+                    drMSC["銷毀卡數"] = "0";
+                    drMSC["調整卡數"] = "0";
+                }
+
+                // edit by Ian Huang 帳務管理模組/卡片成本/-月庫存成本查詢、庫存成本查詢 end
+
+                //期末庫存數                
+                if (dropGroup.SelectedItem.Text == "晶片信用卡")
+                    drMSC["期末庫存數"] = Convert.ToString(Convert.ToInt32(drMSC["期初庫存數"].ToString()) + Convert.ToInt32(drMSC["進貨數"].ToString()) + Convert.ToInt32(drMSC["移轉入"].ToString()) - Convert.ToInt32(drMSC["移轉出"].ToString()) - Convert.ToInt32(drMSC["製成卡數"].ToString()) - Convert.ToInt32(drMSC["耗損卡數"].ToString()) - Convert.ToInt32(drMSC["銷毀卡數"].ToString()) - Convert.ToInt32(drMSC["調整卡數"].ToString()));
+                else
+                    drMSC["期末庫存數"] = Convert.ToString(Convert.ToInt32(drMSC["期初庫存數"].ToString()) + Convert.ToInt32(drMSC["進貨數"].ToString()) + Convert.ToInt32(drMSC["移轉入"].ToString()) - Convert.ToInt32(drMSC["移轉出"].ToString()) - Convert.ToInt32(drMSC["消耗卡數"].ToString()) - Convert.ToInt32(drMSC["銷毀卡數"].ToString()) - Convert.ToInt32(drMSC["調整卡數"].ToString()));
+
+                //期末的日結日期
+                string strLastCheckDate = bl.GetNextWorkDay(DateTo);//取這個日期區間之后的第一個工作日
+                if (drMSC["期末庫存數"].ToString() == "0")
+                {//取該日期區間内最後一次日結的日期
+                    strLastCheckDate = bl.GetLastCheckDate(strOperate_RID, strOperate_Type, strCardType_Move_RID, drMonthStockCost["Factory_RID"].ToString(), drMonthStockCost["CardType_RID"].ToString(), DateFrom, DateTo);
+                }
+
+                //未稅單價
+                if (strIncomeDate.CompareTo(strActualDate) < 0 || strOperate_RID == "0")
+                {
+                    drMSC["未稅單價"] = strUnit_Price;
+                }
+                else
+                {
+                    if (!StringUtil.IsEmpty(drMonthStockCost["Operate_Type"].ToString()))
+                    {
+                        DataSet UnitPrice1 = bl.GetUnitPrice(drMonthStockCost["Operate_RID"].ToString(), drMonthStockCost["Operate_Type"].ToString(), strLastCheckDate.Split(' ')[0]);
+                        if (UnitPrice1.Tables[0].Rows.Count > 0)
+                        {
+                            string strReal_Ask_Number = UnitPrice1.Tables[0].Rows[0]["Real_Ask_Number"].ToString().Trim();
+                            decimal dReal_Ask_Number = 0;
+                            if (strReal_Ask_Number != "")
+                            {
+                                dReal_Ask_Number = Convert.ToDecimal(strReal_Ask_Number);
+                            }
+
+                            if (dReal_Ask_Number == 0)//未請款
+                            {
+                                if (dropGroup.SelectedItem.Text == "現金卡" || dropGroup.SelectedItem.Text == "晶片金融卡")
+                                {
+                                    if (UnitPrice1.Tables[0].Rows[0]["Unit_Price_Order"].ToString().Trim() != "")
+                                    {
+                                        drMSC["未稅單價"] = UnitPrice1.Tables[0].Rows[0]["Unit_Price_Order"].ToString().Trim();
+                                    }
+                                    else
+                                    {
+                                        drMSC["未稅單價"] = "0.0000";
+                                    }
+                                }
+                                else
+                                {
+                                    if (UnitPrice1.Tables[0].Rows[0]["Unit_Price_Order"].ToString().Trim() != "")
+                                    {
+                                        decimal unit_price = Convert.ToDecimal(UnitPrice1.Tables[0].Rows[0]["Unit_Price_Order"]) / 1.05M;
+                                        drMSC["未稅單價"] = unit_price.ToString("N4");
+                                    }
+                                    else
+                                    {
+                                        drMSC["未稅單價"] = "0.0000";
+                                    }
+                                }
+                            }
+                            else//已請款
+                            {
+                                if (dropGroup.SelectedItem.Text == "現金卡" || dropGroup.SelectedItem.Text == "晶片金融卡")
+                                {
+                                    if (UnitPrice1.Tables[0].Rows[0]["Unit_Price"].ToString().Trim() != "")
+                                    {
+                                        drMSC["未稅單價"] = UnitPrice1.Tables[0].Rows[0]["Unit_Price"].ToString().Trim();
+                                    }
+                                    else
+                                    {
+                                        drMSC["未稅單價"] = "0.0000";
+                                    }
+                                }
+                                else
+                                {
+                                    if (UnitPrice1.Tables[0].Rows[0]["Unit_Price_No"].ToString().Trim() != "")
+                                    {
+                                        drMSC["未稅單價"] = UnitPrice1.Tables[0].Rows[0]["Unit_Price_No"].ToString().Trim();
+                                    }
+                                    else
+                                    {
+                                        drMSC["未稅單價"] = "0.0000";
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            drMSC["未稅單價"] = "0.0000";
+                        }
+                    }
+                    else
+                    {
+                        drMSC["未稅單價"] = "0.0000";
+                    }
+                }
+
+                //期初庫存金額(未(含)稅)
+                //string strEndPrice1 = bl.GetLastEndPrice(dropYear.SelectedItem.Text, dropMonth.SelectedItem.Text, strUselog_Rid, dropUse.SelectedItem.Value, dropGroup.SelectedItem.Value);
+                //string strEndPrice2 = Convert.ToString(Math.Round(Convert.ToInt32(drMSC["期初庫存數"].ToString()) * Convert.ToDecimal(drMSC["期初未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                //Decimal absEndPrice = Math.Abs(Convert.ToDecimal(strEndPrice1) - Convert.ToDecimal(strEndPrice2));             
+                //if (strEndPrice == "0.00")
+                //{
+                //    drMSC["期初庫存金額"] = strEndPrice2;
+                //}
+                //else
+                //{
+                //    if (absEndPrice > 1)
+                //    {
+                //        drMSC["期初庫存金額"] = strEndPrice2;
+                //    }
+                //    else
+                //    {
+                //        drMSC["期初庫存金額"] = strEndPrice1;
+                //    }
+                //}
+                string strEndPrice = bl.GetLastEndPrice(dropYear.SelectedItem.Text, dropMonth.SelectedItem.Text, strUselog_Rid, dropUse.SelectedItem.Value, dropGroup.SelectedItem.Value);
+                if (strEndPrice == "0.00")
+                {
+                    drMSC["期初庫存金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSC["期初庫存數"].ToString()) * Convert.ToDecimal(drMSC["期初未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                }
+                else
+                {
+                    drMSC["期初庫存金額"] = strEndPrice;
+                }
+                //進貨金額                
+                drMSC["進貨金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSC["進貨數"].ToString()) * Convert.ToDecimal(drMSC["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+
+                //移轉入金額                
+                drMSC["移轉入金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSC["移轉入"].ToString()) * Convert.ToDecimal(drMSC["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+
+                //移轉出金額                
+                drMSC["移轉出金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSC["移轉出"].ToString()) * Convert.ToDecimal(drMSC["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+
+
+
+                //銷毀卡金額,調整卡金額                
+                drMSC["銷毀卡金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSC["銷毀卡數"].ToString()) * Convert.ToDecimal(drMSC["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                drMSC["調整卡金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSC["調整卡數"].ToString()) * Convert.ToDecimal(drMSC["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                //製成卡金額,耗損卡金額,消耗卡金額                
+                if (dropGroup.SelectedItem.Text != "晶片信用卡")
+                {
+                    drMSC["製成卡金額"] = "0.00";
+                    drMSC["耗損卡金額"] = "0.00";
+                    if (drMSC["期末庫存數"].ToString() == "0")
+                    {
+                        //200907CR消耗卡的金額=期初庫存金額+進貨金額+移轉入金額-移轉出金額-銷毀卡金額+調整卡金額
+                        drMSC["消耗卡金額"] = Convert.ToString(Convert.ToDecimal(drMSC["期初庫存金額"]) + Convert.ToDecimal(drMSC["進貨金額"]) + Convert.ToDecimal(drMSC["移轉入金額"]) - Convert.ToDecimal(drMSC["移轉出金額"]) - Convert.ToDecimal(drMSC["銷毀卡金額"]) + Convert.ToDecimal(drMSC["調整卡金額"]));
+                    }
+                    else
+                    {
+                        drMSC["消耗卡金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSC["消耗卡數"].ToString()) * Convert.ToDecimal(drMSC["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                    }
+                }
+                else
+                {
+                    drMSC["製成卡金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSC["製成卡數"].ToString()) * Convert.ToDecimal(drMSC["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                    drMSC["消耗卡金額"] = "0.00";
+
+                    if (drMSC["期末庫存數"].ToString() == "0")
+                    {
+                        //200907CR耗損卡的金額=期初庫存金額+進貨金額+移轉入金額-移轉出金額-製成卡金額-銷毀卡金額+調整卡金額
+                        drMSC["耗損卡金額"] = Convert.ToString(Convert.ToDecimal(drMSC["期初庫存金額"]) + Convert.ToDecimal(drMSC["進貨金額"]) + Convert.ToDecimal(drMSC["移轉入金額"]) - Convert.ToDecimal(drMSC["移轉出金額"]) - Convert.ToDecimal(drMSC["製成卡金額"]) - Convert.ToDecimal(drMSC["銷毀卡金額"]) + Convert.ToDecimal(drMSC["調整卡金額"]));
+                    }
+                    else
+                    {
+                        drMSC["耗損卡金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSC["耗損卡數"].ToString()) * Convert.ToDecimal(drMSC["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                    }
+                }
+
+                //期末庫存未(含)稅金額/200907CR/期初庫存金額+進貨金額+移轉入金額-移轉出金額-製成卡金額-耗損卡金額-銷毀卡金額+調整卡金額                
+                // drMSC["期末庫存未稅金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSC["期末庫存數"].ToString()) * Convert.ToDecimal(drMSC["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                drMSC["期末庫存未稅金額"] = Convert.ToString(Convert.ToDecimal(drMSC["期初庫存金額"]) + Convert.ToDecimal(drMSC["進貨金額"]) + Convert.ToDecimal(drMSC["移轉入金額"]) - Convert.ToDecimal(drMSC["移轉出金額"]) - Convert.ToDecimal(drMSC["製成卡金額"]) - Convert.ToDecimal(drMSC["耗損卡金額"]) - Convert.ToDecimal(drMSC["消耗卡金額"]) - Convert.ToDecimal(drMSC["銷毀卡金額"]) + Convert.ToDecimal(drMSC["調整卡金額"]));
+                //單價調整金額                
+                if (Convert.ToInt32(drMSC["期初庫存數"]) != 0 && (Convert.ToDecimal(drMSC["期初未稅單價"].ToString()) != Convert.ToDecimal(drMSC["未稅單價"].ToString())))
+                {
+                    drMSC["單價調整金額"] = Convert.ToString(Convert.ToDecimal(drMSC["期初庫存金額"].ToString()) - Convert.ToDecimal(drMSC["期末庫存未稅金額"].ToString()));
+
+                }
+                else
+                    drMSC["單價調整金額"] = "0.00";
+
+                dtMSC.Rows.Add(drMSC);
+                //200907CR月報表儲存之月底庫存金額
+                bl.AddEndPrice(strUselog_Rid, dropYear.SelectedItem.Text + dropMonth.SelectedItem.Text.PadLeft(2, '0'), drMSC["期末庫存未稅金額"].ToString(), dropUse.SelectedItem.Value, dropGroup.SelectedItem.Value, dropFactoryRID.SelectedItem.Value);
+                //bl.AddEndPrice(drMSC["Uselog_Rid"].ToString(), dropYear.SelectedItem.Text + dropMonth.SelectedItem.Text.PadLeft(2, '0'), drMSC["期末庫存未稅金額"].ToString(), dropUse.SelectedItem.Value, dropGroup.SelectedItem.Value);
+
+            }
+
+            //added by Even.Cheng on 20090115
+            DataTable dtResult = dtMSC;
+            if (dropFactoryRID.SelectedValue != "")
+            {
+                dtResult = this.CreateTable();
+                DataRow[] drs = dtMSC.Select("Factory_RID=" + dropFactoryRID.SelectedValue);
+                foreach (DataRow dr in drs)
+                {
+                    DataRow drResult = dtResult.NewRow();
+                    for (int m = 0; m < drResult.ItemArray.Length; m++)
+                    {
+                        drResult[m] = dr[m];
+                    }
+                    dtResult.Rows.Add(drResult);
+                }
+            }
+            //end add
+
+
+            //資料表中的合計行
+            if (dtResult.Rows.Count > 0)
+            {
+                drMSC = dtResult.NewRow();
+                drMSC["版面簡稱"] = "合計";
+                int total = 0;
+                decimal total1 = 0;
+                for (j = 0; j < dtResult.Rows.Count; j++)
+                {
+                    if (dtResult.Rows[j][2].ToString().Trim() != "")
+                        total += Convert.ToInt32(dtResult.Rows[j][2].ToString().Trim());
+                }
+                drMSC[2] = total.ToString();
+                for (j = 0; j < dtResult.Rows.Count; j++)
+                {
+                    if (dtResult.Rows[j][3].ToString().Trim() != "")
+                        total1 += Convert.ToDecimal(dtResult.Rows[j][3].ToString().Trim());
+                }
+                drMSC[3] = total1.ToString();
+                for (i = 4; i < 13; i++)
+                {
+                    total = 0;
+                    for (j = 0; j < dtResult.Rows.Count; j++)
+                    {
+                        if (dtResult.Rows[j][i].ToString().Trim() != "")
+                            total += Convert.ToInt32(dtResult.Rows[j][i].ToString().Trim());
+                    }
+                    drMSC[i] = total.ToString();
+                }
+                for (i = 13; i < dtResult.Columns.Count - 4; i++)
+                {
+                    total1 = 0;
+                    for (j = 0; j < dtResult.Rows.Count; j++)
+                    {
+                        if (dtResult.Rows[j][i].ToString().Trim() != "")
+                            total1 += Convert.ToDecimal(dtResult.Rows[j][i].ToString().Trim());
+                        //LogFactory.Write(total1.ToString(), GlobalString.LogType.ErrorCategory);
+                    }
+                    drMSC[i] = total1.ToString();
+                }
+                drMSC[3] = "";
+                drMSC[13] = "";
+                // dtResult.Rows.Add(drMSC);
+
+                #region 200907IR 轉入轉出金額不平
+
+
+
+
+                Decimal MoveSumIn = Convert.ToDecimal(drMSC["移轉入金額"].ToString());
+                Decimal MoveSumOut = Convert.ToDecimal(drMSC["移轉出金額"].ToString());
+                Decimal MoveNumIn = Convert.ToDecimal(drMSC["移轉入"].ToString());
+                Decimal MoveNumOut = Convert.ToDecimal(drMSC["移轉出"].ToString());
+                Decimal MoveSum = MoveSumOut - MoveSumIn;
+
+                if (int.Parse(MoveSum.ToString()) != 0 && MoveNumIn == MoveNumOut)
+                {
+                    DataTable dt = dtResult.Copy();//所有轉出的數據
+                    for (i = 0; i < dt.Rows.Count; i++)
+                    {
+                        DataRow drin1 = dt.Rows[i];
+                        if (drin1["移轉出"].ToString() != "0")
+                        {
+                            for (int t = i + 1; t < dt.Rows.Count; t++)
+                            {
+                                DataRow drin2 = dt.Rows[t];
+                                if (drin1["CardType_RID"].ToString() == drin2["CardType_RID"].ToString()
+                                    && drin1["未稅單價"].ToString() == drin2["未稅單價"].ToString()
+                                    && drin1["Factory_RID"].ToString() == drin2["Factory_RID"].ToString())
+                                {
+                                    drin1["移轉出"] = Convert.ToString(int.Parse(drin1["移轉出"].ToString()) + int.Parse(drin2["移轉出"].ToString()));
+                                    drin1["移轉出金額"] = Convert.ToString(Decimal.Parse(drin1["移轉出金額"].ToString()) + Decimal.Parse(drin2["移轉出金額"].ToString()));
+                                    dt.Rows.RemoveAt(t);
+                                    t--;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            dt.Rows.RemoveAt(i);
+                            i--;
+                        }
+                    }
+
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                        for (i = 0; i < dtResult.Rows.Count; i++)
+                        {
+                            DataRow drin1 = dtResult.Rows[i];
+                            if (drin1["移轉入"].ToString() != "0")
+                            {
+                                for (int t = 0; t < dt.Rows.Count; t++)
+                                {
+                                    DataRow drin2 = dt.Rows[t];
+
+                                    if (drin1["CardType_RID"].ToString() == drin2["CardType_RID"].ToString()
+                                        && drin1["Factory_RID"].ToString() != drin2["Factory_RID"].ToString())
+                                    {
+                                        if (drin1["移轉入"].ToString() == drin2["移轉出"].ToString())
+                                        {
+                                            drin1["未稅單價"] = drin2["未稅單價"].ToString();
+                                            drin1["移轉入金額"] = drin2["移轉出金額"].ToString();
+                                            dt.Rows.RemoveAt(t);
+                                            t--;
+                                            break;
+                                        }
+                                        else if (int.Parse(drin1["移轉入"].ToString()) > int.Parse(drin2["移轉出"].ToString()))
+                                        {
+                                            drin1["未稅單價"] = drin2["未稅單價"].ToString();
+
+                                            int incount = int.Parse(drin1["移轉入"].ToString()) - int.Parse(drin2["移轉出"].ToString());
+                                            Decimal strnum = Decimal.Parse(drin1["移轉入金額"].ToString()) - Decimal.Parse(drin2["移轉出金額"].ToString());
+                                            drin1["移轉入"] = drin2["移轉出"].ToString();
+                                            drin1["移轉入金額"] = drin2["移轉出金額"].ToString();
+
+                                            DataRow drin3 = dtResult.NewRow();
+                                            //drin3=CreateDataRow(drin1);
+                                            drin3["版面簡稱"] = drin1["版面簡稱"].ToString();
+                                            drin3["PERSO 廠"] = drin1["PERSO 廠"].ToString();
+                                            drin3["期初庫存數"] = "0";
+                                            drin3["期初未稅單價"] = "0.00";
+                                            drin3["進貨數"] = "0";
+                                            //drin3["移轉入"] = "0";
+                                            drin3["移轉出"] = "0";
+                                            drin3["消耗卡數"] = "0";
+                                            drin3["製成卡數"] = "0";
+                                            drin3["耗損卡數"] = "0";
+                                            drin3["銷毀卡數"] = "0";
+                                            drin3["調整卡數"] = "0";
+                                            drin3["期末庫存數"] = "0";
+                                            //drin3["未稅單價"] = "0.00";
+                                            drin3["期初庫存金額"] = "0.00";
+                                            drin3["進貨金額"] = "0.00";
+                                            //drin3["移轉入金額"] = "0.00";
+                                            drin3["移轉出金額"] = "0.00";
+                                            drin3["消耗卡金額"] = "0.00";
+                                            drin3["製成卡金額"] = "0.00";
+                                            drin3["耗損卡金額"] = "0.00";
+                                            drin3["銷毀卡金額"] = "0.00";
+                                            drin3["調整卡金額"] = "0.00";
+                                            drin3["單價調整金額"] = "0.00";
+                                            drin3["期末庫存未稅金額"] = "0.00";
+                                            drin3["Factory_RID"] = drin1["Factory_RID"].ToString();
+                                            drin3["CardType_RID"] = drin1["CardType_RID"].ToString();
+                                            drin3["Uselog_Rid"] = drin1["Uselog_Rid"].ToString();
+                                            drin3["Unit_Price"] = drin1["Unit_Price"].ToString();
+                                            drin3["未稅單價"] = drin1["未稅單價"].ToString();
+                                            drin3["移轉入"] = incount.ToString();
+                                            drin3["移轉入金額"] = Convert.ToString(strnum);
+                                            dtResult.Rows.Add(drin3);
+                                            dt.Rows.RemoveAt(t);
+                                            t--;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+                dtResult.DefaultView.Sort = "Factory_RID,CardType_RID,Uselog_Rid";
+                DataTable dtReTemp = dtResult.DefaultView.ToTable();
+                dtResult = dtReTemp.Copy();
+
+
+                foreach (DataRow drMSCTemp in dtResult.Rows)
+                {
+                    // edit by Ian Huang 帳務管理模組/卡片成本/-月庫存成本查詢、庫存成本查詢 start
+                    //if (drMSCTemp["移轉入"].ToString() != "0")
+                    //{
+                    //製成卡數,耗損卡數,消耗卡數,銷毀卡數,調整卡數以及移轉出卡數.
+                    if (dtbltemp.Select("Perso_Factory_RID='" + drMSCTemp["Factory_RID"].ToString() + "' and CardType_RID='" + drMSCTemp["CardType_RID"].ToString() + "'").Length > 0)
+                    {
+                        DataRow dr = dtbltemp.Select("Perso_Factory_RID='" + drMSCTemp["Factory_RID"].ToString() + "' and CardType_RID='" + drMSCTemp["CardType_RID"].ToString() + "'")[0];
+                        number = Convert.ToInt32(drMSCTemp["期初庫存數"].ToString()) + Convert.ToInt32(drMSCTemp["進貨數"].ToString()) + Convert.ToInt32(drMSCTemp["移轉入"].ToString());
+
+                        DateTime tCheck = DateTime.Parse(DateTo).AddDays(-10);
+                        int iMOCheck = -1;
+                        if (dtmotemp.Select("Perso_Factory_RID='" + drMSCTemp["Factory_RID"].ToString() + "' and CardType_RID='" + drMSCTemp["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMSCTemp["Unit_Price"].ToString().Trim() + "'").Length > 0)
+                        {
+                            DateTime tMOCheck = (DateTime)dtmotemp.Select("Perso_Factory_RID='" + drMSCTemp["Factory_RID"].ToString() + "' and CardType_RID='" + drMSCTemp["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMSCTemp["Unit_Price"].ToString().Trim() + "'")[0]["MoveDate"];
+                            iMOCheck = tMOCheck.CompareTo(tCheck);
+                        }
+
+                        if (-1 == iMOCheck)
+                        {
+                            //200907IR-移轉出與移轉入金額不符
+                            if (dtmotemp.Select("Perso_Factory_RID='" + drMSCTemp["Factory_RID"].ToString() + "' and CardType_RID='" + drMSCTemp["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMSCTemp["Unit_Price"].ToString().Trim() + "'").Length > 0)
+                            {
+                                DataRow drmo = dtmotemp.Select("Perso_Factory_RID='" + drMSCTemp["Factory_RID"].ToString() + "' and CardType_RID='" + drMSCTemp["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMSCTemp["Unit_Price"].ToString().Trim() + "'")[0];
+                                if (number > 0 && drmo["MoveNum"].ToString() != "" && Convert.ToInt32(drmo["MoveNum"].ToString()) > 0)
+                                {
+                                    drMSCTemp["移轉出"] = bl.GetCardCount(number, drmo, "MoveNum").ToString();
+                                    number -= Convert.ToInt32(drMSCTemp["移轉出"]);
+                                }
+                                else
+                                {
+                                    drMSCTemp["移轉出"] = "0";
+                                }
+                            }
+                            else
+                            {
+                                drMSCTemp["移轉出"] = "0";
+                            }
+                        }
+
+                        if (number > 0 && dr["調整卡數"].ToString() != "")
+                        {
+                            drMSCTemp["調整卡數"] = bl.GetCardCount(number, dr, "調整卡數").ToString();
+                            drMSCTemp["調整卡數"] = ( 0 - Convert.ToInt32(drMSCTemp["調整卡數"]) );
+                            number += Convert.ToInt32(drMSCTemp["調整卡數"]);
+                        }
+                        else
+                        {
+                            drMSCTemp["調整卡數"] = "0";
+                        }
+
+                        if (number > 0 && dr["銷毀卡數"].ToString() != "" && Convert.ToInt32(dr["銷毀卡數"].ToString()) > 0)
+                        {
+                            drMSCTemp["銷毀卡數"] = bl.GetCardCount(number, dr, "銷毀卡數").ToString();
+                            number -= Convert.ToInt32(drMSCTemp["銷毀卡數"]);
+                        }
+                        else
+                        {
+                            drMSCTemp["銷毀卡數"] = "0";
+                        }
+
+                        if (dropGroup.SelectedItem.Text == "晶片信用卡")
+                        {
+                            drMSCTemp["消耗卡數"] = "0";
+                            if (number > 0 && dr["耗損卡數"].ToString() != "" && Convert.ToInt32(dr["耗損卡數"].ToString()) > 0)
+                            {
+                                drMSCTemp["耗損卡數"] = bl.GetCardCount(number, dr, "耗損卡數").ToString();
+                                number -= Convert.ToInt32(drMSCTemp["耗損卡數"]);
+                            }
+                            else
+                            {
+                                drMSCTemp["耗損卡數"] = "0";
+                            }
+
+                            if (number > 0 && dr["製成卡數"].ToString() != "" && Convert.ToInt32(dr["製成卡數"].ToString()) > 0)
+                            {
+                                drMSCTemp["製成卡數"] = bl.GetCardCount(number, dr, "製成卡數").ToString();
+                                number -= Convert.ToInt32(drMSCTemp["製成卡數"]);
+                            }
+                            else
+                            {
+                                drMSCTemp["製成卡數"] = "0";
+                            }
+
+                        }
+                        else
+                        {
+                            drMSCTemp["製成卡數"] = "0";
+                            drMSCTemp["耗損卡數"] = "0";
+                            if (number > 0 && dr["消耗卡數"].ToString() != "" && Convert.ToInt32(dr["消耗卡數"].ToString()) > 0)
+                            {
+                                drMSCTemp["消耗卡數"] = bl.GetCardCount(number, dr, "消耗卡數").ToString();
+                                number -= Convert.ToInt32(drMSCTemp["消耗卡數"]);
+                            }
+                            else
+                            {
+                                drMSCTemp["消耗卡數"] = "0";
+                            }
+                        }
+
+                        if (-1 != iMOCheck)
+                        {
+                            if (dtmotemp.Select("Perso_Factory_RID='" + drMSCTemp["Factory_RID"].ToString() + "' and CardType_RID='" + drMSCTemp["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMSCTemp["Unit_Price"].ToString().Trim() + "'").Length > 0)
+                            {
+                                DataRow drmo = dtmotemp.Select("Perso_Factory_RID='" + drMSCTemp["Factory_RID"].ToString() + "' and CardType_RID='" + drMSCTemp["CardType_RID"].ToString() + "' and MoveUnit_Price='" + drMSCTemp["Unit_Price"].ToString().Trim() + "'")[0];
+                                if (number > 0 && drmo["MoveNum"].ToString() != "" && Convert.ToInt32(drmo["MoveNum"].ToString()) > 0)
+                                {
+                                    drMSCTemp["移轉出"] = bl.GetCardCount(number, drmo, "MoveNum").ToString();
+                                    number -= Convert.ToInt32(drMSCTemp["移轉出"]);
+                                }
+                                else
+                                {
+                                    drMSCTemp["移轉出"] = "0";
+                                }
+                            }
+                            else
+                            {
+                                drMSCTemp["移轉出"] = "0";
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        drMSCTemp["移轉出"] = "0";
+                        drMSCTemp["消耗卡數"] = "0";
+                        drMSCTemp["製成卡數"] = "0";
+                        drMSCTemp["耗損卡數"] = "0";
+                        drMSCTemp["銷毀卡數"] = "0";
+                        drMSCTemp["調整卡數"] = "0";
+                    }
+                    // edit by Ian Huang 帳務管理模組/卡片成本/-月庫存成本查詢、庫存成本查詢 end
+
+                    //期末庫存數                
+                    if (dropGroup.SelectedItem.Text == "晶片信用卡")
+//                        drMSCTemp["期末庫存數"] = Convert.ToString(Convert.ToInt32(drMSCTemp["期初庫存數"].ToString()) + Convert.ToInt32(drMSCTemp["進貨數"].ToString()) + Convert.ToInt32(drMSCTemp["移轉入"].ToString()) - Convert.ToInt32(drMSCTemp["移轉出"].ToString()) - Convert.ToInt32(drMSCTemp["製成卡數"].ToString()) - Convert.ToInt32(drMSCTemp["耗損卡數"].ToString()) - Convert.ToInt32(drMSCTemp["銷毀卡數"].ToString()) - Convert.ToInt32(drMSCTemp["調整卡數"].ToString()));
+                          drMSCTemp["期末庫存數"] = Convert.ToString(Convert.ToInt32(drMSCTemp["期初庫存數"].ToString()) + Convert.ToInt32(drMSCTemp["進貨數"].ToString()) + Convert.ToInt32(drMSCTemp["移轉入"].ToString()) - Convert.ToInt32(drMSCTemp["移轉出"].ToString()) - Convert.ToInt32(drMSCTemp["製成卡數"].ToString()) - Convert.ToInt32(drMSCTemp["耗損卡數"].ToString()) - Convert.ToInt32(drMSCTemp["銷毀卡數"].ToString()) + Convert.ToInt32(drMSCTemp["調整卡數"].ToString()));
+
+                    else
+
+                      //drMSCTemp["期末庫存數"] = Convert.ToString(Convert.ToInt32(drMSCTemp["期初庫存數"].ToString()) + Convert.ToInt32(drMSCTemp["進貨數"].ToString()) + Convert.ToInt32(drMSCTemp["移轉入"].ToString()) - Convert.ToInt32(drMSCTemp["移轉出"].ToString()) - Convert.ToInt32(drMSCTemp["消耗卡數"].ToString()) - Convert.ToInt32(drMSCTemp["銷毀卡數"].ToString()) - Convert.ToInt32(drMSCTemp["調整卡數"].ToString()));
+                      drMSCTemp["期末庫存數"] = Convert.ToString(Convert.ToInt32(drMSCTemp["期初庫存數"].ToString()) + Convert.ToInt32(drMSCTemp["進貨數"].ToString()) + Convert.ToInt32(drMSCTemp["移轉入"].ToString()) - Convert.ToInt32(drMSCTemp["移轉出"].ToString()) - Convert.ToInt32(drMSCTemp["消耗卡數"].ToString()) - Convert.ToInt32(drMSCTemp["銷毀卡數"].ToString()) + Convert.ToInt32(drMSCTemp["調整卡數"].ToString()));
+
+
+
+
+           
+
+                    string strEndPrice = bl.GetLastEndPrice(dropYear.SelectedItem.Text, dropMonth.SelectedItem.Text, drMSCTemp["Uselog_Rid"].ToString(), dropUse.SelectedItem.Value, dropGroup.SelectedItem.Value);
+                    if (strEndPrice == "0.00")
+                    {
+                        drMSCTemp["期初庫存金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSCTemp["期初庫存數"].ToString()) * Convert.ToDecimal(drMSCTemp["期初未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                    }
+                    else
+                    {
+                        drMSCTemp["期初庫存金額"] = strEndPrice;
+                    }
+                    //進貨金額                
+                    drMSCTemp["進貨金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSCTemp["進貨數"].ToString()) * Convert.ToDecimal(drMSCTemp["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+
+                    ////移轉入金額                
+                    //drMSCTemp["移轉入金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSCTemp["移轉入"].ToString()) * Convert.ToDecimal(drMSCTemp["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+
+                    //移轉出金額                
+                    drMSCTemp["移轉出金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSCTemp["移轉出"].ToString()) * Convert.ToDecimal(drMSCTemp["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+
+
+
+                    //銷毀卡金額,調整卡金額                
+                    drMSCTemp["銷毀卡金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSCTemp["銷毀卡數"].ToString()) * Convert.ToDecimal(drMSCTemp["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                    drMSCTemp["調整卡金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSCTemp["調整卡數"].ToString()) * Convert.ToDecimal(drMSCTemp["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                    //製成卡金額,耗損卡金額,消耗卡金額                
+                    if (dropGroup.SelectedItem.Text != "晶片信用卡")
+                    {
+                        drMSCTemp["製成卡金額"] = "0.00";
+                        drMSCTemp["耗損卡金額"] = "0.00";
+                        if (drMSCTemp["期末庫存數"].ToString() == "0")
+                        {
+                            //200907CR消耗卡的金額=期初庫存金額+進貨金額+移轉入金額-移轉出金額-銷毀卡金額+調整卡金額
+                            drMSCTemp["消耗卡金額"] = Convert.ToString(Convert.ToDecimal(drMSCTemp["期初庫存金額"]) + Convert.ToDecimal(drMSCTemp["進貨金額"]) + Convert.ToDecimal(drMSCTemp["移轉入金額"]) - Convert.ToDecimal(drMSCTemp["移轉出金額"]) - Convert.ToDecimal(drMSCTemp["銷毀卡金額"]) + Convert.ToDecimal(drMSCTemp["調整卡金額"]));
+                        }
+                        else
+                        {
+                            drMSCTemp["消耗卡金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSCTemp["消耗卡數"].ToString()) * Convert.ToDecimal(drMSCTemp["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                        }
+                    }
+                    else
+                    {
+                        drMSCTemp["製成卡金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSCTemp["製成卡數"].ToString()) * Convert.ToDecimal(drMSCTemp["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                        drMSCTemp["消耗卡金額"] = "0.00";
+
+                        if (drMSCTemp["期末庫存數"].ToString() == "0")
+                        {
+                            //200907CR耗損卡的金額=期初庫存金額+進貨金額+移轉入金額-移轉出金額-製成卡金額-銷毀卡金額+調整卡金額
+                            drMSCTemp["耗損卡金額"] = Convert.ToString(Convert.ToDecimal(drMSCTemp["期初庫存金額"]) + Convert.ToDecimal(drMSCTemp["進貨金額"]) + Convert.ToDecimal(drMSCTemp["移轉入金額"]) - Convert.ToDecimal(drMSCTemp["移轉出金額"]) - Convert.ToDecimal(drMSCTemp["製成卡金額"]) - Convert.ToDecimal(drMSCTemp["銷毀卡金額"]) + Convert.ToDecimal(drMSCTemp["調整卡金額"]));
+                        }
+                        else
+                        {
+                            drMSCTemp["耗損卡金額"] = Convert.ToString(Math.Round(Convert.ToInt32(drMSCTemp["耗損卡數"].ToString()) * Convert.ToDecimal(drMSCTemp["未稅單價"].ToString()), MidpointRounding.AwayFromZero));
+                        }
+                    }
+
+                    //期末庫存未(含)稅金額/200907CR/期初庫存金額+進貨金額+移轉入金額-移轉出金額-製成卡金額-耗損卡金額-銷毀卡金額+調整卡金額                
+                    drMSCTemp["期末庫存未稅金額"] = Convert.ToString(Convert.ToDecimal(drMSCTemp["期初庫存金額"]) + Convert.ToDecimal(drMSCTemp["進貨金額"]) + Convert.ToDecimal(drMSCTemp["移轉入金額"]) - Convert.ToDecimal(drMSCTemp["移轉出金額"]) - Convert.ToDecimal(drMSCTemp["製成卡金額"]) - Convert.ToDecimal(drMSCTemp["耗損卡金額"]) - Convert.ToDecimal(drMSCTemp["消耗卡金額"]) - Convert.ToDecimal(drMSCTemp["銷毀卡金額"]) + Convert.ToDecimal(drMSCTemp["調整卡金額"]));
+                    //單價調整金額                
+                    if (Convert.ToInt32(drMSCTemp["期初庫存數"]) != 0 && (Convert.ToDecimal(drMSCTemp["期初未稅單價"].ToString()) != Convert.ToDecimal(drMSCTemp["未稅單價"].ToString())))
+                    {
+                        drMSCTemp["單價調整金額"] = Convert.ToString(Convert.ToDecimal(drMSCTemp["期初庫存金額"].ToString()) - Convert.ToDecimal(drMSCTemp["期末庫存未稅金額"].ToString()));
+
+                    }
+                    else
+                        drMSCTemp["單價調整金額"] = "0.00";
+
+
+                    bl.AddEndPrice(drMSCTemp["Uselog_Rid"].ToString(), dropYear.SelectedItem.Text + dropMonth.SelectedItem.Text.PadLeft(2, '0'), drMSCTemp["期末庫存未稅金額"].ToString(), dropUse.SelectedItem.Value, dropGroup.SelectedItem.Value, dropFactoryRID.SelectedItem.Value);
+                    //}
+                }
+
+
+
+
+
+
+                //dtResult.DefaultView.Sort = "Factory_RID,CardType_RID,Uselog_Rid";
+                //DataTable dtReTemp = dtResult.DefaultView.ToTable();
+                //dtResult = dtReTemp.Copy();
+
+                #endregion
+
+                drMSC = dtResult.NewRow();
+                drMSC["版面簡稱"] = "合計";
+                total = 0;
+                total1 = 0;
+                for (j = 0; j < dtResult.Rows.Count; j++)
+                {
+                    if (dtResult.Rows[j][2].ToString().Trim() != "")
+                        total += Convert.ToInt32(dtResult.Rows[j][2].ToString().Trim());
+                }
+                drMSC[2] = total.ToString();
+                for (j = 0; j < dtResult.Rows.Count; j++)
+                {
+                    if (dtResult.Rows[j][3].ToString().Trim() != "")
+                        total1 += Convert.ToDecimal(dtResult.Rows[j][3].ToString().Trim());
+                }
+                drMSC[3] = total1.ToString();
+                for (i = 4; i < 13; i++)
+                {
+                    total = 0;
+                    for (j = 0; j < dtResult.Rows.Count; j++)
+                    {
+                        if (dtResult.Rows[j][i].ToString().Trim() != "")
+                            total += Convert.ToInt32(dtResult.Rows[j][i].ToString().Trim());
+                    }
+                    drMSC[i] = total.ToString();
+                }
+                for (i = 13; i < dtResult.Columns.Count - 4; i++)
+                {
+                    total1 = 0;
+                    for (j = 0; j < dtResult.Rows.Count; j++)
+                    {
+                        if (dtResult.Rows[j][i].ToString().Trim() != "")
+                            total1 += Convert.ToDecimal(dtResult.Rows[j][i].ToString().Trim());
+                    }
+                    drMSC[i] = total1.ToString();
+                }
+                drMSC[3] = "";
+                drMSC[13] = "";
+                dtResult.Rows.Add(drMSC);
+
+
+
+
+
+
+                //if (dtResult.Rows[MoveRows]["版面簡稱"].ToString() != "合計" && int.Parse(dtResult.Rows[MoveRows]["移轉入金額"].ToString()) > 0 && int.Parse(dtResult.Rows[MoveRows]["期末庫存數"].ToString()) != 0)
+                //{
+                //   DataRow[] dr= dt.Select("CardType_RID=" + dtResult.Rows[MoveRows]["CardType_RID"].ToString() + " and Factory_RID !=" + dtResult.Rows[MoveRows]["Factory_RID"].ToString());
+                //   if (dr.Length > 0)
+                //   {
+                //       for (int i = 0; i < dr.Length; i++)
+                //       {
+                //           DataRow drin1 = dr[i];
+                //           for (int t = i + 1; t < dr.Length; t++)
+                //           {
+                //               DataRow drin2 = dr[t];
+                //               if (drin1["未稅單價"].ToString() = drin2["未稅單價"].ToString() && drin1["Factory_RID"].ToString() = drin2["Factory_RID"].ToString())
+                //               {
+                //                   drin1["移轉出"] =Convert.ToString( int.Parse(drin1["移轉出"].ToString()) + int.Parse(drin2["移轉出"].ToString()));
+
+                //               }
+                //           }
+                //       }
+                //   }
+
+
+                //if (dropGroup.SelectedItem.Text != "晶片信用卡")
+                //{
+                //    dtResult.Rows[MoveRows]["消耗卡金額"] = Convert.ToString(Convert.ToDecimal(dtResult.Rows[MoveRows]["消耗卡金額"].ToString()) + MoveSum);
+                //    drMSC["消耗卡金額"] = Convert.ToString(Convert.ToDecimal(drMSC["消耗卡金額"].ToString()) + MoveSum);
+                //}
+                //else
+                //{
+                //    dtResult.Rows[MoveRows]["耗損卡金額"] = Convert.ToString(Convert.ToDecimal(dtResult.Rows[MoveRows]["耗損卡金額"].ToString()) + MoveSum);
+                //    drMSC["耗損卡金額"] = Convert.ToString(Convert.ToDecimal(drMSC["耗損卡金額"].ToString()) + MoveSum);
+                //}
+                //dtResult.Rows[MoveRows]["移轉入金額"] = Convert.ToString(Convert.ToDecimal(dtResult.Rows[MoveRows]["移轉入金額"].ToString()) + MoveSum);
+                //dtResult.Rows[MoveRows]["未稅單價"] = Convert.ToString(Math.Round(Convert.ToDecimal(dtResult.Rows[MoveRows]["移轉入金額"].ToString())/Convert.ToInt32(dtResult.Rows[MoveRows]["移轉入"].ToString()),4));
+                //    dtResult.Rows[MoveRows]["期末庫存未稅金額"] = Convert.ToString(Convert.ToDecimal(dtResult.Rows[MoveRows]["期初庫存金額"]) + Convert.ToDecimal(dtResult.Rows[MoveRows]["進貨金額"]) + Convert.ToDecimal(dtResult.Rows[MoveRows]["移轉入金額"]) - Convert.ToDecimal(dtResult.Rows[MoveRows]["移轉出金額"]) - Convert.ToDecimal(dtResult.Rows[MoveRows]["製成卡金額"]) - Convert.ToDecimal(dtResult.Rows[MoveRows]["耗損卡金額"]) - Convert.ToDecimal(dtResult.Rows[MoveRows]["消耗卡金額"]) - Convert.ToDecimal(dtResult.Rows[MoveRows]["銷毀卡金額"]) + Convert.ToDecimal(dtResult.Rows[MoveRows]["調整卡金額"]));
+                //    bl.AddEndPrice(dtResult.Rows[MoveRows]["Uselog_Rid"].ToString(), dropYear.SelectedItem.Text + dropMonth.SelectedItem.Text.PadLeft(2, '0'), dtResult.Rows[MoveRows]["期末庫存未稅金額"].ToString(), dropUse.SelectedItem.Value, dropGroup.SelectedItem.Value, dropFactoryRID.SelectedItem.Value);
+                //    break;
+                //    }
+                //}
+                //    drMSC["移轉入金額"] = Convert.ToString(Convert.ToDecimal(drMSC["移轉入金額"].ToString()) + MoveSum);
+                //    drMSC["期末庫存未稅金額"] = Convert.ToString(Convert.ToDecimal(drMSC["期初庫存金額"]) + Convert.ToDecimal(drMSC["進貨金額"]) + Convert.ToDecimal(drMSC["移轉入金額"]) - Convert.ToDecimal(drMSC["移轉出金額"]) - Convert.ToDecimal(drMSC["製成卡金額"]) - Convert.ToDecimal(drMSC["耗損卡金額"]) - Convert.ToDecimal(drMSC["消耗卡金額"]) - Convert.ToDecimal(drMSC["銷毀卡金額"]) + Convert.ToDecimal(drMSC["調整卡金額"]));
+                //}
+
+
+
+                //(YYYY/MM/DD起)- (YYYY/MM/DD迄)製成卡金額
+                lblS_Numbers.Text = Convert.ToDecimal(drMSC["製成卡金額"].ToString()).ToString("N2");
+                //(YYYY/MM/DD起)- (YYYY/MM/DD迄)耗損卡金額
+                lblF_Numbers.Text = Convert.ToDecimal(drMSC["耗損卡金額"].ToString()).ToString("N2");
+                //(YYYY/MM/DD起)- (YYYY/MM/DD迄)消耗卡金額
+                lblUseOutNumber.Text = Convert.ToDecimal(drMSC["消耗卡金額"].ToString()).ToString("N2");
+                //(YYYY/MM)委管庫存成本
+                lblW_Number.Text = Convert.ToDecimal(drMSC["期末庫存未稅金額"].ToString()).ToString("N2");
+
+                //銷毀卡，調整卡
+                lblXH_Numer.Text = Convert.ToDecimal(drMSC["銷毀卡金額"].ToString()).ToString("N2");
+                lblTZ_Numer.Text = Convert.ToDecimal(drMSC["調整卡金額"].ToString()).ToString("N2");
+
+            }
+
+            //設置表格標題
+            if (dropGroup.SelectedItem.Text == "現金卡" || dropGroup.SelectedItem.Text == "晶片金融卡")
+            {
+                dtResult.Columns[3].ColumnName = "期初含稅單價";
+                dtResult.Columns[13].ColumnName = "含稅單價";
+                dtResult.Columns[14].ColumnName = "期初庫存金額(含稅)";
+                dtResult.Columns[24].ColumnName = "期末庫存含稅金額";
+            }
+            else
+            {
+                dtResult.Columns[3].ColumnName = "期初未稅單價";
+                dtResult.Columns[13].ColumnName = "未稅單價";
+                dtResult.Columns[14].ColumnName = "期初庫存金額(未稅)";
+                dtResult.Columns[24].ColumnName = "期末庫存未稅金額";
+            }
+
+            //顯示欄位
+            dtResult.Columns.Remove("Factory_RID");
+            dtResult.Columns.Remove("Uselog_Rid");
+            dtResult.Columns.Remove("CardType_RID");
+            dtResult.Columns.Remove("Unit_Price");
+            if (dropGroup.SelectedItem.Text != "晶片信用卡")
+            {
+                dtResult.Columns.Remove("製成卡數");
+                dtResult.Columns.Remove("製成卡金額");
+                dtResult.Columns.Remove("耗損卡數");
+                dtResult.Columns.Remove("耗損卡金額");
+                lblS_Num.Visible = false;
+                lblS_Numbers.Visible = false;
+                lblF_Num.Visible = false;
+                lblF_Numbers.Visible = false;
+                lblUseOutNum.Visible = true;
+                lblUseOutNumber.Visible = true;
+                //ScriptManager.RegisterStartupScript(this, this.GetType(), Guid.NewGuid().ToString(), "doSearch2();", true);
+                this.result3.Visible = false;
+                this.result4.Visible = false;
+                this.result5.Visible = true;
+            }
+            else
+            {
+                dtResult.Columns.Remove("消耗卡數");
+                dtResult.Columns.Remove("消耗卡金額");
+                lblUseOutNum.Visible = false;
+                lblUseOutNumber.Visible = false;
+                lblS_Num.Visible = true;
+                lblS_Numbers.Visible = true;
+                lblF_Num.Visible = true;
+                lblF_Numbers.Visible = true;
+                //ScriptManager.RegisterStartupScript(this, this.GetType(), Guid.NewGuid().ToString(), "doSearch3();", true);
+                this.result3.Visible = true;
+                this.result4.Visible = true;
+                this.result5.Visible = false;
+            }
+
+            //千分位
+            foreach (DataRow dr in dtResult.Rows)
+            {
+                if (dr[0].ToString() == "合計")
+                {
+                    if (dropGroup.SelectedItem.Text != "晶片信用卡")
+                    {
+                        dr[2] = Convert.ToInt32(dr[2].ToString()).ToString("N0");
+                        for (i = 4; i < 11; i++)
+                            dr[i] = Convert.ToInt32(dr[i].ToString()).ToString("N0");
+                        for (i = 12; i <= dtResult.Columns.Count - 1; i++)
+                            dr[i] = Convert.ToDecimal(dr[i].ToString()).ToString("N2");
+                    }
+                    else
+                    {
+                        dr[2] = Convert.ToInt32(dr[2].ToString()).ToString("N0");
+                        for (i = 4; i < 12; i++)
+                            dr[i] = Convert.ToInt32(dr[i].ToString()).ToString("N0");
+                        for (i = 13; i <= dtResult.Columns.Count - 1; i++)
+                            dr[i] = Convert.ToDecimal(dr[i].ToString()).ToString("N2");
+                    }
+                }
+                else
+                {
+                    if (dropGroup.SelectedItem.Text != "晶片信用卡")
+                    {
+                        dr[2] = Convert.ToInt32(dr[2].ToString()).ToString("N0");
+                        dr[3] = Convert.ToDecimal(dr[3].ToString()).ToString("N4");
+                        dr[11] = Convert.ToDecimal(dr[11].ToString()).ToString("N4");
+                        for (i = 4; i < 11; i++)
+                            dr[i] = Convert.ToInt32(dr[i].ToString()).ToString("N0");
+                        for (i = 12; i <= dtResult.Columns.Count - 1; i++)
+                            dr[i] = Convert.ToDecimal(dr[i].ToString()).ToString("N2");
+                    }
+                    else
+                    {
+                        dr[2] = Convert.ToInt32(dr[2].ToString()).ToString("N0");
+                        dr[3] = Convert.ToDecimal(dr[3].ToString()).ToString("N4");
+                        dr[12] = Convert.ToDecimal(dr[12].ToString()).ToString("N4");
+                        for (i = 4; i < 12; i++)
+                            dr[i] = Convert.ToInt32(dr[i].ToString()).ToString("N0");
+                        for (i = 13; i <= dtResult.Columns.Count - 1; i++)
+                            dr[i] = Convert.ToDecimal(dr[i].ToString()).ToString("N2");
+                    }
+                }
+            }
+
+            //如果是第二次綁定，將差異數重新加到LIST上。
+            //if (isSecondBing)
+            //{
+            //    if (lblD_Number.Text != "" && lblD_Number.Text != "Label")
+            //    {
+            //        Decimal dD_Number = Decimal.Parse(lblD_Number.Text);
+
+            //        int iModifyCount = 0;
+            //        //算出最先一筆消耗不等于零的記錄，如果找不到，則放在第一筆！
+            //        for (int iRowCount = dtResult.Rows.Count - 2; iRowCount >= 0; iRowCount--)
+            //        {
+            //            if (dropGroup.SelectedItem.Text != "晶片信用卡")
+            //            {
+            //                if (dtResult.Rows[iRowCount][16].ToString() != "0.00")
+            //                {
+            //                    iModifyCount = iRowCount;
+            //                    break;
+            //                }
+            //            }
+            //            else
+            //            {
+            //                if (dtResult.Rows[iRowCount][18].ToString() != "0.00")
+            //                {
+            //                    iModifyCount = iRowCount;
+            //                    break;
+            //                }
+            //            }
+            //        }
+
+            //        if (dropGroup.SelectedItem.Text != "晶片信用卡")
+            //        {
+            //            Decimal dOldValue = Convert.ToDecimal(dtResult.Rows[iModifyCount].ItemArray.GetValue(16));
+            //            dtResult.Rows[iModifyCount][16] = (Convert.ToDecimal(dOldValue - dD_Number)).ToString("N2");
+
+            //            dOldValue = Convert.ToDecimal(dtResult.Rows[dtResult.Rows.Count - 1].ItemArray.GetValue(16));
+            //            dtResult.Rows[dtResult.Rows.Count - 1][16] = (Convert.ToDecimal(dOldValue - dD_Number)).ToString("N2");
+
+
+            //            dOldValue = Convert.ToDecimal(dtResult.Rows[iModifyCount].ItemArray.GetValue(20));
+            //            dtResult.Rows[iModifyCount][20] = (Convert.ToDecimal(dOldValue + dD_Number)).ToString("N2");
+
+            //            dOldValue = Convert.ToDecimal(dtResult.Rows[dtResult.Rows.Count - 1].ItemArray.GetValue(20));
+            //            dtResult.Rows[dtResult.Rows.Count - 1][20] = (Convert.ToDecimal(dOldValue + dD_Number)).ToString("N2");
+
+            //        }
+            //        else
+            //        {
+            //            Decimal dOldValue = Convert.ToDecimal(dtResult.Rows[iModifyCount].ItemArray.GetValue(18));
+            //            dtResult.Rows[iModifyCount][18] = (Convert.ToDecimal(dOldValue - dD_Number)).ToString("N2");
+
+            //            dOldValue = Convert.ToDecimal(dtResult.Rows[dtResult.Rows.Count - 1].ItemArray.GetValue(18));
+            //            dtResult.Rows[dtResult.Rows.Count - 1][18] = (Convert.ToDecimal(dOldValue - dD_Number)).ToString("N2");
+
+
+            //            dOldValue = Convert.ToDecimal(dtResult.Rows[iModifyCount].ItemArray.GetValue(22));
+            //            dtResult.Rows[iModifyCount][22] = (Convert.ToDecimal(dOldValue + dD_Number)).ToString("N2");
+
+            //            dOldValue = Convert.ToDecimal(dtResult.Rows[dtResult.Rows.Count - 1].ItemArray.GetValue(22));
+            //            dtResult.Rows[dtResult.Rows.Count - 1][22] = (Convert.ToDecimal(dOldValue + dD_Number)).ToString("N2");
+
+            //        }
+
+            //    }
+
+
+
+            //}
+
+            //傳參數，添加報表數據
+            Session["MonthStockCost"] = dtResult;
+
+            return dtResult;
+        }
+        catch (Exception ex)
+        {
+            LogFactory.Write(ex.ToString(), GlobalString.LogType.ErrorCategory);
+
+            ExceptionFactory.CreateAlertException(this, ex.Message);
+            return null;
+        }
+    }
+
+
+
+    /// <summary>
+    /// GridView列數據綁定
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    protected void gvpbMonthStockCost_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        //將負數項轉換為括號加（）
+        if (isSecondBing)
+        {
+            if (e.Row.RowType == DataControlRowType.DataRow)
+            {
+                for (int i = 2; i < e.Row.Cells.Count; i++)
+                {
+                    if (e.Row.Cells[i].Text.Contains("-"))
+                    {
+                        e.Row.Cells[i].Text = "(" + e.Row.Cells[i].Text.Substring(1, e.Row.Cells[i].Text.Length - 1) + ")";
+                        e.Row.Cells[i].ForeColor = System.Drawing.Color.Red;
+                    }
+                }
+                if (e.Row.Cells[0].Text == "合計")
+                {
+                    for (int i = 0; i < e.Row.Cells.Count; i++)
+                        e.Row.Cells[i].Font.Bold = true;
+                }
+            }
+        }
+
+    }
+    #endregion
+
+    /// <summary>
+    /// 匯出報表
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    protected void btnReport_click(object sender, EventArgs e)
+    {
+        this.queryResult.Visible = true;
+        this.result2.Visible = true;
+        string time = DateTime.Now.ToString("yyyyMMddHHmmss");
+        HidTime.Value = time;
+        int i = 0;
+        DataTable dt = (DataTable)Session["MonthStockCost"];
+
+        //千分位
+        foreach (DataRow dr in dt.Rows)
+        {
+            if (dropGroup.SelectedItem.Text != "晶片信用卡")
+            {
+                for (i = 2; i < 11; i++)
+                    dr[i] = dr[i].ToString().Replace(",", "");
+                for (i = 11; i < dt.Columns.Count; i++)
+                    dr[i] = dr[i].ToString().Replace(",", "");
+            }
+            else
+            {
+                for (i = 2; i < 12; i++)
+                    dr[i] = dr[i].ToString().Replace(",", "");
+                for (i = 12; i < dt.Columns.Count; i++)
+                    dr[i] = dr[i].ToString().Replace(",", "");
+            }
+        }
+        //將表格中的數據存入RPT_Finance004_2中
+        bl.AddReport(dt, time);
+
+        Session["Last_W_Number"] = lblLast_W_Number.Text.Replace(",", "");
+        Session["S_Number"] = lblS_Numbers.Text.Replace(",", "");
+        Session["F_Number"] = lblF_Numbers.Text.Replace(",", "");
+        Session["Back_Number"] = lblBack_Number.Text.Replace(",", "");
+        Session["P_Number"] = lblP_Number.Text.Replace(",", "");
+        Session["T_Number"] = lblT_Number.Text.Replace(",", "");
+        Session["A_Number"] = lblA_Number.Text.Replace(",", "");
+        Session["W_Number"] = lblW_Number.Text.Replace(",", "");
+        Session["D_Number"] = lblD_Number.Text.Replace(",", "");
+        Session["UseOutNumber"] = lblUseOutNumber.Text.Replace(",", "");
+        Session["lblXH_Numer"] = lblXH_Numer.Text.Replace(",", "");
+        Session["lblTZ_Numer"] = lblTZ_Numer.Text.Replace(",", "");
+        Session["lblLast_YM"] = lblLast_W_Num.Text.Substring(0, 7);
+
+        ScriptManager.RegisterStartupScript(this, this.GetType(), Guid.NewGuid().ToString(), "exportExcel();", true);
+        this.queryResult.Visible = true;
+
+        if (dropFactoryRID.SelectedValue == "")
+            this.result2.Visible = true;
+        else
+            this.result2.Visible = false;
+
+        if (dropGroup.SelectedItem.Text != "晶片信用卡")
+        {
+            //ScriptManager.RegisterStartupScript(this, this.GetType(), Guid.NewGuid().ToString(), "doSearch2();", true);
+            this.result3.Visible = false;
+            this.result4.Visible = false;
+            this.result5.Visible = true;
+        }
+        else
+        {
+            //ScriptManager.RegisterStartupScript(this, this.GetType(), Guid.NewGuid().ToString(), "doSearch3();", true);
+            this.result3.Visible = true;
+            this.result4.Visible = true;
+            this.result5.Visible = false;
+        }
+    }
+}

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="CIMS">
+  <ConnectionProperties>
+    <Extension>SQL</Extension>
+    <ConnectString>Data Source=192.168.2.105;Initial Catalog=CIMS_SIT</ConnectString>
+    <Prompt>Specify a user name and password for data source CIMS:</Prompt>
+  </ConnectionProperties>
+  <DataSourceID>1661afe1-6115-4603-8dd8-51699bb9844b</DataSourceID>
+</RptDataSource>

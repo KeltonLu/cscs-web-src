@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Alert_CanntDelete" xml:space="preserve">
+    <value>不可刪除該筆資料</value>
+  </data>
+  <data name="Alert_CanntModify" xml:space="preserve">
+    <value>不可修改該筆資料</value>
+  </data>
+  <data name="Alert_CardGroupExist" xml:space="preserve">
+    <value>該卡種群組已經存在！</value>
+  </data>
+  <data name="Alert_CardType_Used" xml:space="preserve">
+    <value>尚有卡種使用中</value>
+  </data>
+  <data name="Alert_ComposeColumn_Duplited" xml:space="preserve">
+    <value>新增欄位名稱不可重複</value>
+  </data>
+  <data name="Alert_ConNotLinkLDAP" xml:space="preserve">
+    <value>連接LDAP Server失敗</value>
+  </data>
+  <data name="Alert_CtrlNoneAction" xml:space="preserve">
+    <value>控製項權限組台未設定行爲碼</value>
+  </data>
+  <data name="alert_CustomerYesORNO" xml:space="preserve">
+    <value>查無此客戶資料</value>
+  </data>
+  <data name="Alert_DangerousInputCode" xml:space="preserve">
+    <value>您輸入了危險字符，本次操作無效！</value>
+  </data>
+  <data name="Alert_DataExist" xml:space="preserve">
+    <value>該資料已經存在，如需變更請使用修改功能。</value>
+  </data>
+  <data name="Alert_DeleteFailErr" xml:space="preserve">
+    <value>刪除失敗</value>
+  </data>
+  <data name="Alert_DeleteSuccess" xml:space="preserve">
+    <value>刪除成功</value>
+  </data>
+  <data name="Alert_FactoryCancelMarkDelete" xml:space="preserve">
+    <value>沒有選擇取消標記刪除的對象</value>
+  </data>
+  <data name="Alert_FactoryCustomerID" xml:space="preserve">
+    <value>授信用戶編號：</value>
+  </data>
+  <data name="Alert_FactoryCustomerName" xml:space="preserve">
+    <value>授信用戶名稱：</value>
+  </data>
+  <data name="Alert_FactoryDelete" xml:space="preserve">
+    <value>沒有選擇要刪除的對象!</value>
+  </data>
+  <data name="Alert_FactoryMarkDelete" xml:space="preserve">
+    <value>沒有選項擇標記刪除的對象</value>
+  </data>
+  <data name="Alert_FactoryMessage" xml:space="preserve">
+    <value>有海外工廠資料</value>
+  </data>
+  <data name="Alert_FileTypeErr" xml:space="preserve">
+    <value>文件內容不正確，請查明。</value>
+  </data>
+  <data name="Alert_FileUploadErr" xml:space="preserve">
+    <value>文件上傳失敗</value>
+  </data>
+  <data name="Alert_GetList_ImportHistoryErr" xml:space="preserve">
+    <value>查詢資料導入信息</value>
+  </data>
+  <data name="Alert_Group_AddError" xml:space="preserve">
+    <value>添加群組失敗</value>
+  </data>
+  <data name="Alert_HasNotGroup" xml:space="preserve">
+    <value>您還未獲得授權使用本系統</value>
+  </data>
+  <data name="Alert_HasNotPageAction" xml:space="preserve">
+    <value>用戶沒有訪問本頁面的權限</value>
+  </data>
+  <data name="Alert_Info_DateInputErr" xml:space="preserve">
+    <value>輸入的日期不合邏輯</value>
+  </data>
+  <data name="Alert_InitPageFailErr" xml:space="preserve">
+    <value>初始化頁面失敗</value>
+  </data>
+  <data name="Alert_Input_CustomerID" xml:space="preserve">
+    <value>請輸入“授信戶統編/企業團編號”</value>
+  </data>
+  <data name="Alert_Input_RemitterName" xml:space="preserve">
+    <value>請輸入“匯款人名稱”</value>
+  </data>
+  <data name="Alert_InputReason" xml:space="preserve">
+    <value>請輸入維護原因</value>
+  </data>
+  <data name="Alert_LoginLDAPErr" xml:space="preserve">
+    <value>LDAP登錄失敗</value>
+  </data>
+  <data name="Alert_LoginLogTimeErr" xml:space="preserve">
+    <value>記錄用戶登錄時間失敗</value>
+  </data>
+  <data name="Alert_LostLogin" xml:space="preserve">
+    <value>用戶驗證未通過</value>
+  </data>
+  <data name="Alert_ManualCheckLogMessage" xml:space="preserve">
+    <value>有查核資料內容 </value>
+  </data>
+  <data name="Alert_MarkDeleteSuccess" xml:space="preserve">
+    <value>標記刪除成功</value>
+  </data>
+  <data name="Alert_MustInput" xml:space="preserve">
+    <value>所有欄位不可空白</value>
+  </data>
+  <data name="Alert_NOCustomerID" xml:space="preserve">
+    <value>請輸入授信用戶編號!</value>
+  </data>
+  <data name="Alert_NoneAction" xml:space="preserve">
+    <value>對不起，此帳號未被設定任何功能權限，請查明。</value>
+  </data>
+  <data name="Alert_NoneAgent" xml:space="preserve">
+    <value>對不起，要代理的用戶不存在。</value>
+  </data>
+  <data name="Alert_NoneAgentAction" xml:space="preserve">
+    <value>對不起，要代理的用戶沒有被設定任何權限，請查明。</value>
+  </data>
+  <data name="Alert_NoneRC_Code" xml:space="preserve">
+    <value>您還沒有區域中心的設置</value>
+  </data>
+  <data name="Alert_NoneResourceItem" xml:space="preserve">
+    <value>資源中沒有{0}的鍵</value>
+  </data>
+  <data name="Alert_NoneUser" xml:space="preserve">
+    <value>對不起，用戶不存在。</value>
+  </data>
+  <data name="Alert_NoPic" xml:space="preserve">
+    <value>請上傳圖片</value>
+  </data>
+  <data name="Alert_NotLogin" xml:space="preserve">
+    <value>用戶未登錄</value>
+  </data>
+  <data name="Alert_Numberic_Required" xml:space="preserve">
+    <value>必須是數字</value>
+  </data>
+  <data name="Alert_PassWordErr" xml:space="preserve">
+    <value>對不起，密碼錯誤。</value>
+  </data>
+  <data name="Alert_PicTooLarge" xml:space="preserve">
+    <value>圖片上傳失敗,大小不能超過10M</value>
+  </data>
+  <data name="Alert_PicUploadFail" xml:space="preserve">
+    <value>圖片上傳失敗</value>
+  </data>
+  <data name="Alert_PicUploadSucess" xml:space="preserve">
+    <value>圖片上傳成功</value>
+  </data>
+  <data name="Alert_PicWrongFormat" xml:space="preserve">
+    <value>圖片上傳失敗，格式應該為gif jpg jpeg bmp</value>
+  </data>
+  <data name="alert_RightCustomerName" xml:space="preserve">
+    <value>請輸入正確的用戶編號</value>
+  </data>
+  <data name="Alert_SalesCustomerMessage" xml:space="preserve">
+    <value>有銷售廠商資料</value>
+  </data>
+  <data name="Alert_SaveFailErr" xml:space="preserve">
+    <value>儲存失敗，請稍後再按一次儲存</value>
+  </data>
+  <data name="Alert_SaveSuccess" xml:space="preserve">
+    <value>儲存成功</value>
+  </data>
+  <data name="Alert_SearchFailErr" xml:space="preserve">
+    <value>查詢失敗</value>
+  </data>
+  <data name="Alert_SQL_NotSelect" xml:space="preserve">
+    <value>只能輸入查詢語句</value>
+  </data>
+  <data name="Alert_SQL_ValidateErr" xml:space="preserve">
+    <value>SQL語句錯誤</value>
+  </data>
+  <data name="Alert_SQL_ValidateSuccess" xml:space="preserve">
+    <value>SQL語句正確</value>
+  </data>
+  <data name="Alert_StockCustomerMessage" xml:space="preserve">
+    <value>有進貨廠商資料</value>
+  </data>
+  <data name="Alert_TailorReport_Exist" xml:space="preserve">
+    <value>報表名稱已存在</value>
+  </data>
+  <data name="Alert_TailorReport_GetDataErr" xml:space="preserve">
+    <value>獲得頁面資料失敗</value>
+  </data>
+  <data name="Alert_TailorReport_NotExist" xml:space="preserve">
+    <value>嘗試查詢不存在的報表</value>
+  </data>
+  <data name="Alert_UserAcountISUseing" xml:space="preserve">
+    <value>您使用的帳號已經被其它地方佔用，請查明</value>
+  </data>
+  <data name="AlertRoleCantDel" xml:space="preserve">
+    <value>該角色已賦予權限或被指定，無法刪除</value>
+  </data>
+  <data name="AlertUserCannotDel" xml:space="preserve">
+    <value>用戶已被賦予權限，無法刪除</value>
+  </data>
+  <data name="ArrayLengthErr" xml:space="preserve">
+    <value>比較的長度不同</value>
+  </data>
+  <data name="BTN_UseAndFill" xml:space="preserve">
+    <value>套用</value>
+  </data>
+  <data name="DataSettingErr" xml:space="preserve">
+    <value>系統參數缺少記錄</value>
+  </data>
+  <data name="Format_Date" xml:space="preserve">
+    <value>/</value>
+  </data>
+  <data name="Info_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Info_ButtonAdd" xml:space="preserve">
+    <value>新增</value>
+  </data>
+  <data name="Info_ButtonUpdate" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Info_CancelMarkDeleteHint" xml:space="preserve">
+    <value>是否取消標記刪除此筆記錄</value>
+  </data>
+  <data name="Info_ContainsUserErr" xml:space="preserve">
+    <value>檢查用戶是否存在，失敗</value>
+  </data>
+  <data name="Info_DeleteHint" xml:space="preserve">
+    <value>是否刪除此筆訊息</value>
+  </data>
+  <data name="Info_ISBeingRecord" xml:space="preserve">
+    <value>已存在該筆資料</value>
+  </data>
+  <data name="Info_MarkDeleteHint" xml:space="preserve">
+    <value>是否標記刪除此筆記錄</value>
+  </data>
+  <data name="TradeType_Value1" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="TradeType_Value2" xml:space="preserve">
+    <value>InCome</value>
+  </data>
+  <data name="TradeType_Value3" xml:space="preserve">
+    <value>Trans</value>
+  </data>
+</root>
